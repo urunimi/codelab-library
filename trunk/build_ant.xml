@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="CodelabLibrary" default="dist" basedir=".">
+	<description>Codelab Library for Android</description>
+	
+	<!-- Definitions -->
+	<property name="lib.filename" value="codelab-lib.jar" />	<!-- lib file name -->
+	<property name="sdk.level" value="8" />	<!-- target version -->
+
+    <!-- Verbosity -->
+    <property name="verbose" value="false" />
+
+	<!-- Source file -->
+	<property name="src.dir" value="src"/>
+
+	<!-- Output directories -->
+	<property name="out.dir" value="bin" />
+	<property name="out.class" value="${out.dir}/classes" />
+	<property name="out.jar" value="${out.dir}" />
+	<property name="out.doc" value="${out.dir}/doc" />
+	
+	<!-- Referenced Library directories -->
+	<property name="lib.dir" location="libs"/>
+
+	<!-- path -->
+	<property environment="env"/>
+	
+	<path id="compile.classpath">
+		<pathelement location="${out.class}"/>
+		<!--<fileset dir="${lib.dir}">
+			<include name="*.jar"/>
+		</fileset>-->
+	</path>
+
+	<target name="-dirs">
+		<mkdir dir="${out.dir}" />
+		<mkdir dir="${out.jar}" />
+		<mkdir dir="${out.doc}" />
+	</target>
+
+	<target name="compile" depends="-dirs" description="Make library file(jar)">
+		<echo>Compiling library jar</echo>
+		<jar destfile="${out.jar}/${lib.filename}" basedir="${out.class}">
+			<!-- Use ** to include the directory recursively -->
+			<include name="*/**" />
+		</jar>
+	</target>
+
+	<target name="javadoc" depends="-dirs" description="Create Javadoc API documentation">
+		<echo>Generating Javadoc</echo>
+		<javadoc
+			sourcepath="${src.dir}"
+			destdir="${out.doc}"
+			packagenames="*"
+			
+			use="true" 
+			classpath="${env.ANDROID_HOME}/platforms/android-${sdk.level}/android.jar;"
+			linkoffline="http://d.android.com/reference ${env.ANDROID_HOME}/docs/reference"
+			stylesheetfile="${env.ANDROID_HOME}/docs/assets/android-developer-docs.css"
+			
+			locale="ko_KR"
+			encoding="UTF-8"
+			docencoding="UTF-8"
+			charset="UTF-8"
+		>
+			<classpath refid="compile.classpath"/>
+		</javadoc>
+	</target>
+
+	<!--<target name="dist" depends="compile, javadoc" description="Create distribution set">-->
+	<target name="dist" depends="javadoc" description="Create distribution set">
+		<echo>Distribution set</echo>
+	</target>
+	
+	<target name="clean" description="Removes output files created by other targets.">
+		<delete dir="${out.dir}" verbose="${verbose}" />
+	</target>
+
+</project>
