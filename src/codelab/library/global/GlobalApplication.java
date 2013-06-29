@@ -1,4 +1,5 @@
 package codelab.library.global;
+import android.os.Handler;
 import codelab.library.constant.DebugConfig;
 import codelab.library.log.LogByCodeLab;
 import android.app.Activity;
@@ -24,13 +25,15 @@ public class GlobalApplication extends Application {
 	/**
 	 * {@link #onCreate()}에서 이 변수에 Application Context 를 저장한다.
 	 */
-	protected static Context mContext = null;
+	protected static Context sContext = null;
+
+	protected static Handler sHandler = new Handler();
 
 	/**
 	 * {@link #isDebuggable()}이 리턴하는 결과값을 캐싱하기 위한 변수.
 	 * 어차피 이 결과값은 바뀌는 값이 아니기 때문에 매번 새로 얻어올 필요가 없다.
 	 * */
-	private static Boolean mIsDebuggable = null;	// tri-state(nullable).
+	private static Boolean sIsDebuggable = null;	// tri-state(nullable).
 
 	/**
 	 * 외부에 출력하는 사용 방법 경고
@@ -57,7 +60,7 @@ public class GlobalApplication extends Application {
 	 * @return Application Context
 	 */
 	public static Context getContext() {
-		return mContext;
+		return sContext;
 	}
 
 	/**
@@ -65,11 +68,11 @@ public class GlobalApplication extends Application {
 	 * @return 리소스.
 	 */
 	public static Resources getResource() {
-		if (mContext == null) {
+		if (sContext == null) {
 			usageWarning();
 			return null;
 		}
-		return mContext.getResources();
+		return sContext.getResources();
 	}
 
 	/**
@@ -80,22 +83,30 @@ public class GlobalApplication extends Application {
 	 */
 	public static boolean isDebuggable() {
 		// 캐시된 값이 있으면 그냥 돌려준다.
-		if (mIsDebuggable != null) {
-			return mIsDebuggable;
+		if (sIsDebuggable != null) {
+			return sIsDebuggable;
 		}
 		// 없으면 새로 값을 얻고 캐싱 처리.
 		// 값을 얻지 못한 경우 캐싱 처리가 일어나지 않는다.
 		try {
-			if (mContext == null) {
+			if (sContext == null) {
 				usageWarning();
 				return false;
 			}
-			mIsDebuggable = 0 != (mContext.getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE);
-			return mIsDebuggable;
+			sIsDebuggable = 0 != (sContext.getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE);
+			return sIsDebuggable;
 		} catch (Exception e) {
 			LogByCodeLab.e(e);
 		}
 		return false;
+	}
+
+	public static void runOnUiThread(Runnable runnable) {
+		sHandler.post(runnable);
+	}
+
+	public static void runOnUriThread(Runnable runnable, long millis) {
+		sHandler.postDelayed(runnable, millis);
 	}
 
 	/**
@@ -105,8 +116,8 @@ public class GlobalApplication extends Application {
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		mContext = null;
-		mContext = getApplicationContext();
+		sContext = null;
+		sContext = getApplicationContext();
 	}
 
 }
