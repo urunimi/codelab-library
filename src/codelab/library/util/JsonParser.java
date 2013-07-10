@@ -25,7 +25,7 @@ public class JsonParser {
 		Class<?> fieldType;
 		String fieldName;
 
-		int arrayTypeIndex = 0;
+//		int arrayTypeIndex = 0;
 
 		for(Field f : type.getFields()) {
 			fieldType = f.getType();
@@ -35,9 +35,9 @@ public class JsonParser {
 					if(int.class.equals(fieldType)) {
 						f.set(object, result.get(fieldName));
 					} else if(ArrayList.class.equals(fieldType)) {
-//						Type gType = ((ParameterizedType)f.getGenericType()).getActualTypeArguments()[0];
-//						LogByCodeLab.d(gType.toString() + " list creating... ");
-//						f.set(object, getNewList(arrayTypes[arrayTypeIndex++], result.get(fieldName).toString()));
+						Class<?> gType = (Class<?>)((ParameterizedType)f.getGenericType()).getActualTypeArguments()[0];
+						LogByCodeLab.d(gType.toString() + " list creating... ");
+						f.set(object, getNewList(gType, result.get(fieldName).toString()));
 					} else if(String.class.equals(fieldType) == false && result.get(fieldName) instanceof JSONObject){
 						f.set(object, getNewInstance(fieldType, result.get(fieldName).toString()));
 					} else {
