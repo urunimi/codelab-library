@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <set xmlns:android="http://schemas.android.com/apk/res/android"
-	 android:duration="@android:integer/config_mediumAnimTime" android:zAdjustment="bottom"
+	 android:duration="300" android:zAdjustment="bottom"
 	 android:interpolator="@android:anim/decelerate_interpolator">
     <scale android:pivotX="50.0%p" android:pivotY="50.0%p" android:fromXScale="0.95" android:toXScale="1.0" android:fromYScale="0.95" android:toYScale="1.0" />
     <translate android:fromXDelta="-20.000004%p" android:toXDelta="0.0" />
