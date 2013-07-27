@@ -60,7 +60,7 @@ public class ThreadHost {
 	 * */
 
 	/** 작업 공간 */
-	private static ThreadPoolExecutor excutor = null;
+	private static ThreadPoolExecutor executor = null;
 	/** 주 작업 대기열 */
 	private static BlockingQueue<Runnable> queue = null;
 
@@ -73,6 +73,10 @@ public class ThreadHost {
 	static {
 		makeHandlers();
 		threadingStart();
+	}
+
+	public static ThreadPoolExecutor getExecutor() {
+		return executor;
 	}
 
 	/**
@@ -118,13 +122,13 @@ public class ThreadHost {
 		if (queue == null) {
 			queue = new PriorityBlockingQueue<Runnable>(ThreadConfig.THREAD_BUCKET_SIZE);
 		}
-		if (excutor == null) {
-			excutor = new ThreadPoolExecutor(
+		if (executor == null) {
+			executor = new ThreadPoolExecutor(
 					ThreadConfig.THREAD_CORE_SIZE, ThreadConfig.THREAD_MAX_SIZE,
 					ThreadConfig.THREAD_ALIVE_TIME, TimeUnit.MILLISECONDS,
 					queue);
 		}
-		if (! excutor.prestartCoreThread()) {
+		if (! executor.prestartCoreThread()) {
 			Log.w(DebugConfig.LOG_TAG, "Fail to prestart core thread. It may already Started.");	// 공공연히 알려야 하므로 로그 래핑을 쓰지 않음.
 		}
 	}
@@ -133,8 +137,8 @@ public class ThreadHost {
 	 * 스레드풀의 연산을 종료한다. 동기화에 안전하지 않으므로 너무 자주 호출하지 말 것.
 	 */
 	synchronized protected static void threadingEnd() {
-		excutor.shutdown();
-		excutor = null;
+		executor.shutdown();
+		executor = null;
 	}
 
 	/**

@@ -56,20 +56,29 @@ public class JsonParser {
 		return object;
 	}
 	
-	public static<T extends Object> List<T> getNewList(Class<T> type, String jsonString) throws Exception {
+	public static<T> List<T> getNewList(Class<T> type, String jsonString) throws Exception {
 		if(jsonString != null) {
 			JSONArray jsonArray = new JSONArray(jsonString);
-			ArrayList<T> list = new ArrayList<T>(jsonArray.length());
-			LogByCodeLab.d(type.getSimpleName() + " list created. size is " + list.size());
-			for(int i=0 ; i<jsonArray.length() ; ++i) {
-				JSONObject jsonObject = jsonArray.getJSONObject(i);
-				T item = getNewInstance(type, jsonObject.toString());
-				if(item != null) {
-					list.add(item);	
+			LogByCodeLab.d(type.getSimpleName() + " list created. size is " + jsonArray.length());
+
+			if(type.equals(String.class)) {
+				ArrayList<String> list = new ArrayList<String>(jsonArray.length());
+				for(int i=0 ; i<jsonArray.length() ; ++i) {
+					list.add(jsonArray.getString(i));
 				}
+				return (List<T>) list;
+			} else {
+				ArrayList<T> list = new ArrayList<T>(jsonArray.length());
+				for(int i=0 ; i<jsonArray.length() ; ++i) {
+					JSONObject jsonObject = jsonArray.getJSONObject(i);
+					T item = getNewInstance(type, jsonObject.toString());
+					if(item != null) {
+						list.add(item);
+					}
+				}
+				return list;
+
 			}
-			
-			return list;
 		}
 		
 		return null;
