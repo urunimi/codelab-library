@@ -105,7 +105,7 @@ public class GlobalApplication extends Application {
 		sHandler.post(runnable);
 	}
 
-	public static void runOnUriThread(Runnable runnable, long millis) {
+	public static void runOnUiThread(Runnable runnable, long millis) {
 		sHandler.postDelayed(runnable, millis);
 	}
 
