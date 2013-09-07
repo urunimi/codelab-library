@@ -1,11 +1,16 @@
 package codelab.library.util;
 
 import android.util.Base64;
+import codelab.library.log.LogByCodeLab;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.DESKeySpec;
+import java.io.UnsupportedEncodingException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Formatter;
 
 /**
  * Usage:
@@ -37,5 +42,28 @@ public class SimpleCrypto {
 		DESKeySpec keySpec = new DESKeySpec(seed.getBytes(ENCODING));
 		SecretKeyFactory keyFactory = SecretKeyFactory.getInstance(TRANSFORMATION);
 		return keyFactory.generateSecret(keySpec);
+	}
+
+	public static String encryptString(String string) {
+		String sha1 = "";
+		try {
+			MessageDigest crypt = MessageDigest.getInstance("SHA-1");
+			crypt.reset();
+			crypt.update(string.getBytes("UTF-8"));
+			sha1 = byteToHex(crypt.digest());
+		} catch(Throwable e) {
+			LogByCodeLab.e(e);
+		}
+		return sha1;
+	}
+
+	static String byteToHex(final byte[] hash) {
+		Formatter formatter = new Formatter();
+		for (byte b : hash) {
+			formatter.format("%02x", b);
+		}
+		String result = formatter.toString();
+		formatter.close();
+		return result;
 	}
 }
