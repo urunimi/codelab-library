@@ -1,17 +1,18 @@
 package codelab.library.util;
 
+import android.os.Build;
+import android.os.Environment;
+import codelab.library.log.LogByCodeLab;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-import codelab.library.log.LogByCodeLab;
-
-import android.os.Build;
-import android.os.Environment;
-
 public class StorageOptions {
-	private static ArrayList<String> mMounts;
-	private static ArrayList<String> mVold;
+
+	static final String DEFAULT_SD_PATH = "/mnt/sdcard";
+	static ArrayList<String> mMounts;
+	static ArrayList<String> mVold;
 
 	public static String[] labels;
 	public static String[] paths;
@@ -28,17 +29,19 @@ public class StorageOptions {
 		readMountsFile();
 
 		//http://stackoverflow.com/questions/18560192/get-a-list-of-external-storage-in-android-4-3
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR2) {
+		if(Build.VERSION.SDK_INT < 18) {	//Build.VERSION_CODES.JELLY_BEAN_MR2
 			readVoldFile();
 			compareMountsWithVold();
 		}
+
+		removeSameStorage();
 
 		testAndCleanMountsList();
 
 		setProperties();
 	}
 
-	private static void readMountsFile() {
+	static void readMountsFile() {
 		/*
 		 * Scan the /proc/mounts file and look for lines like this:
 		 * /dev/block/vold/179:1 /mnt/sdcard vfat
@@ -54,7 +57,7 @@ public class StorageOptions {
 		// some mount files don't list the default
 		// path first, so we add it here to
 		// ensure that it is first in our list
-		mMounts.add("/mnt/sdcard");
+		mMounts.add(DEFAULT_SD_PATH);
 
 		try {
 			Scanner scanner = new Scanner(new File("/proc/mounts"));
@@ -67,7 +70,7 @@ public class StorageOptions {
 						String element = lineElements[1];
 						// don't add the default mount path
 						// it's already in the list.
-						if ("vfat".equals(lineElements[2]) && !lineElements[1].equals("/mnt/sdcard")) {
+						if ("vfat".equals(lineElements[2]) && !lineElements[1].equals(DEFAULT_SD_PATH)) {
 							mMounts.add(element);
 						}
 					}
@@ -78,7 +81,7 @@ public class StorageOptions {
 		}
 	}
 
-	private static void readVoldFile() {
+	static void readVoldFile() {
 		/*
 		 * Scan the /system/etc/vold.fstab file and look for lines like this:
 		 * dev_mount sdcard /mnt/sdcard 1
@@ -92,7 +95,7 @@ public class StorageOptions {
 		// so we add a path here to make sure the list always
 		// includes the path to the first sdcard, whether real
 		// or emulated.
-		mVold.add("/mnt/sdcard");
+		mVold.add(DEFAULT_SD_PATH);
 
 		try {
 			Scanner scanner = new Scanner(new File("/system/etc/vold.fstab"));
@@ -107,7 +110,7 @@ public class StorageOptions {
 
 					// don't add the default vold path
 					// it's already in the list.
-					if (!element.equals("/mnt/sdcard"))
+					if (!element.equals(DEFAULT_SD_PATH))
 						mVold.add(element);
 				}
 			}
@@ -117,11 +120,9 @@ public class StorageOptions {
 	}
 
 	/**
-	 * Sometimes the two lists of mount points will be different. We only  want those mount points that are in both list.=
+	 * Sometimes the two lists of mount points will be different. We only  want those mount points that are in both list.
 	 * Compare the two lists together and remove items that are not in both lists. */
-	private static void compareMountsWithVold() {
-
-
+	static void compareMountsWithVold() {
 		for (int i = 0; i < mMounts.size(); i++) {
 			String mount = mMounts.get(i);
 			if (!mVold.contains(mount))
@@ -133,7 +134,24 @@ public class StorageOptions {
 		mVold.clear();
 	}
 
-	private static void testAndCleanMountsList() {
+	/**
+	 * GingerBread 이상부터는 용량계산이 가능하다. 같은 Storage 가 있다면 여기서 제거.
+	 */
+	static void removeSameStorage() {
+		if(Build.VERSION.SDK_INT < 9) return;
+
+		File defaultSd = new File(DEFAULT_SD_PATH);
+
+		for(String path : mMounts) {
+			if(DEFAULT_SD_PATH.equals(path)) continue;
+			File file = new File(path);
+			if(defaultSd.getFreeSpace() == file.getFreeSpace() && defaultSd.getTotalSpace() == file.getTotalSpace()) {
+				mMounts.remove(path);
+			}
+		}
+	}
+
+	static void testAndCleanMountsList() {
 		/*
 		 * Now that we have a cleaned list of mount paths Test each one to make
 		 * sure it's a valid and available path. If it is not, remove it from
@@ -148,7 +166,7 @@ public class StorageOptions {
 		}
 	}
 
-	private static void setProperties() {
+	static void setProperties() {
 		/*
 		 * At this point all the paths in the list should be valid. Build the
 		 * public properties.
