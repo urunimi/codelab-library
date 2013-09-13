@@ -27,9 +27,11 @@ public class StorageOptions {
 		 
 		readMountsFile();
 
-		readVoldFile();
-
-		compareMountsWithVold();
+		//http://stackoverflow.com/questions/18560192/get-a-list-of-external-storage-in-android-4-3
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR2) {
+			readVoldFile();
+			compareMountsWithVold();
+		}
 
 		testAndCleanMountsList();
 
@@ -59,13 +61,16 @@ public class StorageOptions {
 			while (scanner.hasNext()) {
 				String line = scanner.nextLine();
 				if (line.startsWith("/dev/block/vold/")) {
-					String[] lineElements = line.split(" ");
-					String element = lineElements[1];
+					String[] lineElements = line.split("\\s+");
 
-					// don't add the default mount path
-					// it's already in the list.
-					if (!element.equals("/mnt/sdcard"))
-						mMounts.add(element);
+					if(lineElements.length > 2) {
+						String element = lineElements[1];
+						// don't add the default mount path
+						// it's already in the list.
+						if ("vfat".equals(lineElements[2]) && !lineElements[1].equals("/mnt/sdcard")) {
+							mMounts.add(element);
+						}
+					}
 				}
 			}
 		} catch (Exception e) {
@@ -94,7 +99,7 @@ public class StorageOptions {
 			while (scanner.hasNext()) {
 				String line = scanner.nextLine();
 				if (line.startsWith("dev_mount")) {
-					String[] lineElements = line.split(" ");
+					String[] lineElements = line.split("\\s+");
 					String element = lineElements[2];
 
 					if (element.contains(":"))
@@ -111,14 +116,11 @@ public class StorageOptions {
 		}
 	}
 
+	/**
+	 * Sometimes the two lists of mount points will be different. We only  want those mount points that are in both list.=
+	 * Compare the two lists together and remove items that are not in both lists. */
 	private static void compareMountsWithVold() {
-		/*
-		 * Sometimes the two lists of mount points will be different. We only
-		 * want those mount points that are in both list.
-		 * 
-		 * Compare the two lists together and remove items that are not in both
-		 * lists.
-		 */
+
 
 		for (int i = 0; i < mMounts.size(); i++) {
 			String mount = mMounts.get(i);
@@ -162,8 +164,7 @@ public class StorageOptions {
 				if (Environment.isExternalStorageRemovable()) {
 					mLabels.add("External SD Card 1");
 					j = 1;
-				} else
-					mLabels.add("Internal Storage");
+				} else mLabels.add("Internal Storage");
 			} else {
 				if (!Environment.isExternalStorageRemovable() || Environment.isExternalStorageEmulated())
 					mLabels.add("Internal Storage");
