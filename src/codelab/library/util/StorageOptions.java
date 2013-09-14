@@ -6,6 +6,7 @@ import codelab.library.log.LogByCodeLab;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class StorageOptions {
@@ -23,22 +24,26 @@ public class StorageOptions {
 	}
 	
 	public static void refresh() {
-		mMounts = new ArrayList<String>();
-		mVold = new ArrayList<String>();
-		 
-		readMountsFile();
+		try {
+			mMounts = new ArrayList<String>();
+			mVold = new ArrayList<String>();
 
-		//http://stackoverflow.com/questions/18560192/get-a-list-of-external-storage-in-android-4-3
-		if(Build.VERSION.SDK_INT < 18) {	//Build.VERSION_CODES.JELLY_BEAN_MR2
-			readVoldFile();
-			compareMountsWithVold();
+			readMountsFile();
+
+			//http://stackoverflow.com/questions/18560192/get-a-list-of-external-storage-in-android-4-3
+			if(Build.VERSION.SDK_INT < 18) {	//Build.VERSION_CODES.JELLY_BEAN_MR2
+				readVoldFile();
+				compareMountsWithVold();
+			}
+
+			removeSameStorage();
+
+			testAndCleanMountsList();
+
+			setProperties();
+		} catch(Throwable e) {
+			LogByCodeLab.e(e);
 		}
-
-		removeSameStorage();
-
-		testAndCleanMountsList();
-
-		setProperties();
 	}
 
 	static void readMountsFile() {
@@ -142,7 +147,9 @@ public class StorageOptions {
 
 		File defaultSd = new File(DEFAULT_SD_PATH);
 
-		for(String path : mMounts) {
+		List<String> tempMounts = new ArrayList<String>(mMounts);
+
+		for(String path : tempMounts) {
 			if(DEFAULT_SD_PATH.equals(path)) continue;
 			File file = new File(path);
 			if(defaultSd.getFreeSpace() == file.getFreeSpace() && defaultSd.getTotalSpace() == file.getTotalSpace()) {
@@ -158,11 +165,12 @@ public class StorageOptions {
 		 * the list.
 		 */
 
-		for (int i = 0; i < mMounts.size(); i++) {
-			String mount = mMounts.get(i);
-			File root = new File(mount);
+		List<String> tempMounts = new ArrayList<String>(mMounts);
+
+		for(String path : tempMounts) {
+			File root = new File(path);
 			if (!root.exists() || !root.isDirectory() || !root.canWrite())
-				mMounts.remove(i--);
+				mMounts.remove(path);
 		}
 	}
 
