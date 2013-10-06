@@ -6,6 +6,7 @@ import codelab.library.log.LogByCodeLab;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Scanner;
 
@@ -35,8 +36,6 @@ public class StorageOptions {
 				readVoldFile();
 				compareMountsWithVold();
 			}
-
-			removeSameStorage();
 
 			testAndCleanMountsList();
 
@@ -119,7 +118,7 @@ public class StorageOptions {
 						mVold.add(element);
 				}
 			}
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			LogByCodeLab.w(e);
 		}
 	}
@@ -128,10 +127,13 @@ public class StorageOptions {
 	 * Sometimes the two lists of mount points will be different. We only  want those mount points that are in both list.
 	 * Compare the two lists together and remove items that are not in both lists. */
 	static void compareMountsWithVold() {
-		for (int i = 0; i < mMounts.size(); i++) {
-			String mount = mMounts.get(i);
-			if (!mVold.contains(mount))
-				mMounts.remove(i--);
+
+		Iterator<String> iterator = mMounts.iterator();
+
+		while(iterator.hasNext()) {
+			String path = iterator.next();
+			if (!mVold.contains(path))
+				mMounts.remove(path);
 		}
 
 		// don't need this anymore, clear the vold list to reduce memory
@@ -140,37 +142,28 @@ public class StorageOptions {
 	}
 
 	/**
-	 * GingerBread 이상부터는 용량계산이 가능하다. 같은 Storage 가 있다면 여기서 제거.
-	 */
-	static void removeSameStorage() {
-		if(Build.VERSION.SDK_INT < 9) return;
-
-		File defaultSd = new File(DEFAULT_SD_PATH);
-
-		List<String> tempMounts = new ArrayList<String>(mMounts);
-
-		for(String path : tempMounts) {
-			if(DEFAULT_SD_PATH.equals(path)) continue;
-			File file = new File(path);
-			if(defaultSd.getFreeSpace() == file.getFreeSpace() && defaultSd.getTotalSpace() == file.getTotalSpace()) {
-				mMounts.remove(path);
-			}
-		}
-	}
-
+	 * Now that we have a cleaned list of mount paths Test each one to make sure it's a valid and available path. If it is not, remove it from the list. */
 	static void testAndCleanMountsList() {
-		/*
-		 * Now that we have a cleaned list of mount paths Test each one to make
-		 * sure it's a valid and available path. If it is not, remove it from
-		 * the list.
-		 */
+		try {
+			Iterator<String> iterator = mMounts.iterator();
+			File defaultSd = new File(DEFAULT_SD_PATH);
 
-		List<String> tempMounts = new ArrayList<String>(mMounts);
+			while(iterator.hasNext()) {
+				String path = iterator.next();
+				if(DEFAULT_SD_PATH.equals(path)) continue;
 
-		for(String path : tempMounts) {
-			File root = new File(path);
-			if (!root.exists() || !root.isDirectory() || !root.canWrite())
-				mMounts.remove(path);
+				File root = new File(path);
+				if (!root.exists() || !root.isDirectory() || !root.canWrite())
+					mMounts.remove(path);
+
+				if(Build.VERSION.SDK_INT >= 9) {	//GingerBread 이상부터는 용량계산이 가능하다. 같은 Storage 가 있다면 여기서 제거.
+					if(defaultSd.lastModified() == root.lastModified() && defaultSd.getTotalSpace() == root.getTotalSpace() && defaultSd.getFreeSpace() == root.getFreeSpace()) {
+						mMounts.remove(path);
+					}
+				}
+			}
+		} catch(Throwable e) {
+			LogByCodeLab.w(e);
 		}
 	}
 
