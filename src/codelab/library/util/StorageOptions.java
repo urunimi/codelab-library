@@ -15,33 +15,35 @@ public class StorageOptions {
 	static ArrayList<String> mMounts;
 	static ArrayList<String> mVold;
 
-	public static String[] labels;
-	public static String[] paths;
-	public static int count = 0;
-
-	static {
-		refresh();
-	}
+	static String[] labels;
+	static String[] paths;
+	static int count = 0;
 	
 	public static void refresh() {
-		try {
-			mMounts = new ArrayList<String>();
-			mVold = new ArrayList<String>();
+		mMounts = new ArrayList<String>();
+		mVold = new ArrayList<String>();
 
-			readMountsFile();
+		readMountsFile();
 
-			//http://stackoverflow.com/questions/18560192/get-a-list-of-external-storage-in-android-4-3
-			if(Build.VERSION.SDK_INT < 18) {	//Build.VERSION_CODES.JELLY_BEAN_MR2
-				readVoldFile();
-				compareMountsWithVold();
-			}
-
+		//http://stackoverflow.com/questions/18560192/get-a-list-of-external-storage-in-android-4-3
+		if(Build.VERSION.SDK_INT < 18) {	//Build.VERSION_CODES.JELLY_BEAN_MR2
+			readVoldFile();
+			compareMountsWithVold();
+		} else {
 			testAndCleanMountsList();
-
-			setProperties();
-		} catch(Throwable e) {
-			LogByCodeLab.e(e);
 		}
+
+		setProperties();
+	}
+
+	public static String[] getLabels() {
+		if(labels == null) refresh();
+		return labels;
+	}
+
+	public static String[] getPaths() {
+		if(paths == null) refresh();
+		return paths;
 	}
 
 	static void readMountsFile() {
@@ -127,7 +129,9 @@ public class StorageOptions {
 	 * Compare the two lists together and remove items that are not in both lists. */
 	static void compareMountsWithVold() {
 
-		Iterator<String> iterator = mMounts.iterator();
+		final ArrayList<String> tempMounts = new ArrayList<String>(mMounts);
+
+		Iterator<String> iterator = tempMounts.iterator();
 
 		while(iterator.hasNext()) {
 			String path = iterator.next();
@@ -143,26 +147,24 @@ public class StorageOptions {
 	/**
 	 * Now that we have a cleaned list of mount paths Test each one to make sure it's a valid and available path. If it is not, remove it from the list. */
 	static void testAndCleanMountsList() {
-		try {
-			Iterator<String> iterator = mMounts.iterator();
-			File defaultSd = new File(DEFAULT_SD_PATH);
+		final ArrayList<String> tempMounts = new ArrayList<String>(mMounts);
 
-			while(iterator.hasNext()) {
-				String path = iterator.next();
-				if(DEFAULT_SD_PATH.equals(path)) continue;
+		Iterator<String> iterator = tempMounts.iterator();
+		File defaultSd = new File(DEFAULT_SD_PATH);
 
-				File root = new File(path);
-				if (!root.exists() || !root.isDirectory() || !root.canWrite())
+		while(iterator.hasNext()) {
+			String path = iterator.next();
+			if(DEFAULT_SD_PATH.equals(path)) continue;
+
+			File root = new File(path);
+			if (!root.exists() || !root.isDirectory() || !root.canWrite())
+				mMounts.remove(path);
+
+			if(Build.VERSION.SDK_INT >= 9) {	//GingerBread 이상부터는 용량계산이 가능하다. 같은 Storage 가 있다면 여기서 제거.
+				if(defaultSd.lastModified() == root.lastModified() && defaultSd.getTotalSpace() == root.getTotalSpace() && defaultSd.getFreeSpace() == root.getFreeSpace()) {
 					mMounts.remove(path);
-
-				if(Build.VERSION.SDK_INT >= 9) {	//GingerBread 이상부터는 용량계산이 가능하다. 같은 Storage 가 있다면 여기서 제거.
-					if(defaultSd.lastModified() == root.lastModified() && defaultSd.getTotalSpace() == root.getTotalSpace() && defaultSd.getFreeSpace() == root.getFreeSpace()) {
-						mMounts.remove(path);
-					}
 				}
 			}
-		} catch(Throwable e) {
-			LogByCodeLab.w(e);
 		}
 	}
 
