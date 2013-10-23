@@ -109,6 +109,14 @@ public class GlobalApplication extends Application {
 		sHandler.postDelayed(runnable, millis);
 	}
 
+	public static void removeCallbacks(Runnable runnable) {
+		sHandler.removeCallbacks(runnable);
+	}
+
+	public static Handler getHandler() {
+		return sHandler;
+	}
+
 	/**
 	 * 이 메소드를 상속할 경우 super 호출을 빠뜨리지 말 것.
 	 * @see android.app.Application#onCreate()
