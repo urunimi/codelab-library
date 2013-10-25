@@ -93,7 +93,7 @@ public class LogByCodeLab {
 		if (root.canWrite()) {
 			final File logFile = new File(root, GlobalApplication.getContext().getPackageName() + new SimpleDateFormat("yyyy-MM-dd").format(new Date())+ ".txt");
 			
-			new ThreadGuest() {
+			new ThreadGuest(ThreadGuest.PRIORITY_IDLE) {
 
 				@Override
 				public Object run(/*Handler initHandler, */long waitTimeMillis) {
@@ -111,5 +111,4 @@ public class LogByCodeLab {
 			}.execute();
 		}
 	}
-
 }

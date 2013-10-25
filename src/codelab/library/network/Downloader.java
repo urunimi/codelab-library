@@ -1,18 +1,26 @@
 package codelab.library.network;
 
+import android.content.Context;
+import android.net.http.AndroidHttpClient;
+import codelab.library.global.GlobalApplication;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.conn.ssl.SSLSocketFactory;
+
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.net.Socket;
 import java.net.URI;
-
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpGet;
-
-import android.content.Context;
-import android.net.http.AndroidHttpClient;
-import codelab.library.global.GlobalApplication;
+import java.net.UnknownHostException;
+import java.security.*;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 
 /**
  * 다양한 곳에서 다운로드 하기 위한 라이브러리
@@ -30,11 +38,11 @@ public class Downloader {
 	 * @throws IOException 
 	 * @throws MalformedURLException 
 	 */
-	public static boolean fromURL(String url, String filePath) throws MalformedURLException, IOException {
+	public static boolean fromURL(String url, String filePath) throws Exception {
 		return fromURL(url, filePath, null);
 	}
 	
-	public static boolean fromURL(String url, String filePath, ProgressListener progress) throws MalformedURLException, IOException {
+	public static boolean fromURL(String url, String filePath, ProgressListener progress) throws Exception {
 		InputStream inputStream = null;
 		FileOutputStream fileOutputStream = null;
 		byte[] buf = new byte[100];
@@ -43,9 +51,10 @@ public class Downloader {
 			Context context = GlobalApplication.getContext();
 			httpClient = AndroidHttpClient.newInstance(context.getPackageName(), context);
 			HttpGet pageGet = new HttpGet(URI.create(url));
+
 			HttpResponse response = httpClient.execute(pageGet);
 			inputStream = response.getEntity().getContent();
-			long lenghtOfFile = response.getEntity().getContentLength();
+			long lengthOfFile = response.getEntity().getContentLength();
 
 			fileOutputStream = new FileOutputStream(filePath);
 			
@@ -55,7 +64,7 @@ public class Downloader {
 //		    urlConnection.setDoOutput(true);
 //		    urlConnection.connect();
 //			inputStream = urlConnection.getInputStream();
-//			int lenghtOfFile = urlConnection.getContentLength();
+//			int lengthOfFile = urlConnection.getContentLength();
 			int count = 0;
 			long total = 0;
 			while ((count = inputStream.read(buf)) != -1) {
@@ -63,7 +72,7 @@ public class Downloader {
 				fileOutputStream.write(buf, 0, count);
 				fileOutputStream.flush();
 				if(progress != null) {
-					progress.onPercent((int)(total*100/lenghtOfFile));
+					progress.onPercent((int)(total*100/lengthOfFile));
 				}
 			}
 			httpClient.close();
@@ -94,5 +103,35 @@ public class Downloader {
 	 */
 	public interface ProgressListener {
 		void onPercent(int percent);
+	}
+}
+
+class MySSLSocketFactory extends SSLSocketFactory implements X509TrustManager {
+	SSLContext sslContext = SSLContext.getInstance("TLS");
+
+	public MySSLSocketFactory(KeyStore truststore) throws NoSuchAlgorithmException, KeyStoreException, UnrecoverableKeyException, KeyManagementException {
+		super(truststore);
+
+		sslContext.init(null, new TrustManager[] { this }, null);
+	}
+
+	public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+	}
+
+	public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+	}
+
+	public X509Certificate[] getAcceptedIssuers() {
+		return null;
+	}
+
+	@Override
+	public Socket createSocket(Socket socket, String host, int port, boolean autoClose) throws IOException, UnknownHostException {
+		return sslContext.getSocketFactory().createSocket(socket, host, port, autoClose);
+	}
+
+	@Override
+	public Socket createSocket() throws IOException {
+		return sslContext.getSocketFactory().createSocket();
 	}
 }
