@@ -23,7 +23,7 @@ import codelab.library.global.GlobalApplication;
 public class LogByCodeLab {
 	
 	public static String formatLog(String message) {
-		return new SimpleDateFormat("yy-MM-dd HH:mm:ss.SSS").format(new Date()) + " [" + Thread.currentThread().getId() + "] " + message;
+		return "[" + Thread.currentThread().getId() + "] " + message;
 	}
 
 	public static boolean d() {
@@ -87,19 +87,21 @@ public class LogByCodeLab {
 	    return sw.toString();
 	}
 	
-	static void writeLogToFile(final String message) {
+	static void writeLogToFile(String message) {
 		File root = new File(Environment.getExternalStorageDirectory().getAbsolutePath(), DebugConfig.LOG_TAG);
 		if(!root.canWrite())root.mkdirs();
 		if (root.canWrite()) {
 			final File logFile = new File(root, GlobalApplication.getContext().getPackageName() + new SimpleDateFormat("yyyy-MM-dd").format(new Date())+ ".txt");
-			
+
+			final String messageWithTime = new SimpleDateFormat("yy-MM-dd HH:mm:ss.SSS").format(new Date()) + message;
+
 			new ThreadGuest(ThreadGuest.PRIORITY_IDLE) {
 
 				@Override
 				public Object run(/*Handler initHandler, */long waitTimeMillis) {
 					try {
 						FileOutputStream fos = new FileOutputStream(logFile, true);
-						fos.write((message+"\n").getBytes());
+						fos.write((messageWithTime + "\n").getBytes());
 						fos.close();
 						
 					} catch (IOException ioe) {
