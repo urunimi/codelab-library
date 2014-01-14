@@ -65,7 +65,7 @@ public class ThreadHost {
 	private static BlockingQueue<Runnable> queue = null;
 
 	/* 핸들러 내부에서 분기하는 시간조차 아깝다. 어차피 확장되는 분기가 아니니 핸들러 변수를 따로 두자. */
-	/** 메인 스레드 핸들러. {@link ThreadGuest#run(Handler, long)} 결과를 메인 스레드로 보낼 때 사용. */
+	/** 메인 스레드 핸들러. {@link ThreadGuest#run(long)} 결과를 메인 스레드로 보낼 때 사용. */
 	private static Handler resultHandler = null;
 	/** 메인 스레드 핸들러. 스레드 게스트 체인을 건너갈 때 사용. */
 	private static Handler nextHandler = null;
@@ -195,10 +195,10 @@ public class ThreadHost {
 	}
 
 	/**
-	 * 게스트의 {@link ThreadGuest#run(Handler, long) run()}이 끝났을 때 호출.
+	 * 게스트의 {@link ThreadGuest#run(long) run()}이 끝났을 때 호출.
 	 * 결과를 보고 게스트 체인을 진행하거나 {@link ThreadGuest#after(Object) after()}를 실행하거나 한다.
 	 * @param guest 작업 대상
-	 * @param result guest의 {@link ThreadGuest#run(Handler, long) run()}이 리턴한 객체.
+	 * @param result guest의 {@link ThreadGuest#run(long) run()}이 리턴한 객체.
 	 */
 	private static void handleResult(final ThreadGuest guest, final Object result) {
 		try {
@@ -212,7 +212,7 @@ public class ThreadHost {
 				final Message messageToMain = resultHandler.obtainMessage();	// 메인스레드로 가자.
 				messageToMain.obj = carrier;
 				LogByCodeLab.v("ThreadHost.handleResult(): ResultCarrier departed");
-				resultHandler.sendMessage(messageToMain);
+				resultHandler.dispatchMessage(messageToMain);
 				// 간 후의 작업은 resultHandler 정의를 참고.
 			}
 		} catch (Exception e) {
@@ -245,7 +245,7 @@ public class ThreadHost {
 		messageToMain.obj = carrier;
 		LogByCodeLab.v("ThreadHost.processChain(): NextCarrier departed with time "+guest.mChainDelay);
 		if (guest.mChainDelay <= 0) {
-			nextHandler.sendMessage(messageToMain);
+			nextHandler.dispatchMessage(messageToMain);
 		} else {
 			nextHandler.sendMessageDelayed(messageToMain, guest.mChainDelay);
 		}
