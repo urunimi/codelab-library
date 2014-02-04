@@ -1,13 +1,12 @@
 package codelab.library.service;
 
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-
 import android.content.Intent;
 import android.os.Message;
 import codelab.library.app.PermissionManager;
 import codelab.library.log.LogByCodeLab;
-import codelab.library.service.BaseService;
+
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * {@link BaseService}를 기반으로 작업 스레드의 시작과 종료를 래핑한다.
@@ -46,7 +45,7 @@ public abstract class WorkerService extends BaseService {
 			Message msg = getWorkerHandler().obtainMessage();
 			msg.what = startId;
 			msg.obj = intent;
-			getWorkerHandler().sendMessage(msg);
+			getWorkerHandler().dispatchMessage(msg);
 		} catch (Exception e) {
 			LogByCodeLab.e(e);
 		}
