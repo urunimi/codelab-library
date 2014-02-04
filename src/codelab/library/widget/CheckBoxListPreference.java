@@ -141,6 +141,8 @@ public class CheckBoxListPreference extends ListPreference {
 				CharSequence entry = entryValues[i];
 				if ( valuesList.contains(entry) ) {
 					mClickedDialogEntryIndices[i] = true;
+				} else {
+					mClickedDialogEntryIndices[i] = false;
 				}
 			}
 //        	}
