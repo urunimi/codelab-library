@@ -1,6 +1,8 @@
 package codelab.library.constant;
 
 
+import codelab.library.global.GlobalApplication;
+
 /**
  * 디버깅 관련 상수 모음.
 
@@ -14,7 +16,8 @@ public class DebugConfig {
 	 * */
 
 	/** 로그캣 태그 */
-	public static final String	LOG_TAG						= "codelab.library";
+	public static final String	LOG_TAG						= GlobalApplication.getContext().getPackageName();
+	public static final String	LOG_FOLDER					= "logs";
 
 	/** 고의로 로딩 시간에 딜레이를 더 준다. */
 	public static final int		LOAD_TIME_ADD_MILLIS		= CommonConfig.getVersionConfig() < 0 ? 500 : 0;

@@ -1,18 +1,14 @@
 package codelab.library.log;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
-import android.os.Environment;
 import android.util.Log;
 import codelab.library.concurrent.ThreadGuest;
 import codelab.library.constant.DebugConfig;
 import codelab.library.global.GlobalApplication;
+
+import java.io.*;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 
 /**
  * 정형화된 포맷으로 로그캣 출력을 하기 위한 래핑 메소드들.
@@ -37,9 +33,13 @@ public class LogByCodeLab {
 	}
 
 	public static void d(String message) {
+		d(DebugConfig.LOG_TAG, message);
+	}
+
+	public static void d(String tag, String message) {
 		if (d()) {
 			String text = formatLog(message);
-			Log.d(DebugConfig.LOG_TAG, text);
+			Log.d(tag, text);
 			writeLogToFile(text);
 		}
 	}
@@ -88,12 +88,24 @@ public class LogByCodeLab {
 	}
 	
 	static void writeLogToFile(String message) {
-		File root = new File(Environment.getExternalStorageDirectory().getAbsolutePath(), DebugConfig.LOG_TAG);
+		File root = new File(GlobalApplication.getContext().getExternalCacheDir(), DebugConfig.LOG_FOLDER);
 		if(!root.canWrite())root.mkdirs();
 		if (root.canWrite()) {
-			final File logFile = new File(root, GlobalApplication.getContext().getPackageName() + new SimpleDateFormat("yyyy-MM-dd").format(new Date())+ ".txt");
+			Date today = new Date();
+			Calendar calendar = Calendar.getInstance();
+			calendar.setTime(today);
+			calendar.add(Calendar.DATE, -2);
 
-			final String messageWithTime = new SimpleDateFormat("yy-MM-dd HH:mm:ss.SSS").format(new Date()) + message;
+			final File oldFile = new File(root, new SimpleDateFormat("yyyy-MM-dd").format(calendar.getTime())+ ".txt");
+			if(oldFile.exists()) {
+				oldFile.delete();
+			}
+
+			calendar.setTime(today);
+
+			final File logFile = new File(root, new SimpleDateFormat("yyyy-MM-dd").format(calendar.getTime())+ ".txt");
+
+			final String messageWithTime = new SimpleDateFormat("yy-MM-dd HH:mm:ss.SSS").format(today) + message;
 
 			new ThreadGuest(ThreadGuest.PRIORITY_IDLE) {
 
