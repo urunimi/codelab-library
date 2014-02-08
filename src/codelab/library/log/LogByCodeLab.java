@@ -27,8 +27,12 @@ public class LogByCodeLab {
 	}
 
 	public static void v(String message) {
+		v(DebugConfig.LOG_TAG, message);
+	}
+
+	public static void v(String tag, String message) {
 		if (d()) {
-			Log.v(DebugConfig.LOG_TAG, formatLog(message));
+			Log.v(tag, formatLog(message));
 		}
 	}
 
