@@ -16,19 +16,19 @@ import android.view.View;
 import codelab.library.R;
 
 /**
- * The Class HoloCircularProgressBar.
+ * The Class CircularProgressBar.
  *
  * @author Pascal.Welsch
  * @since 05.03.2013
  *
  * @version 1.1 (12.10.2013)
  */
-public class HoloCircularProgressBar extends View {
+public class CircularProgressBar extends View {
 
 	/**
 	 * The Constant TAG.
 	 */
-	private static final String TAG = HoloCircularProgressBar.class.getSimpleName();
+	private static final String TAG = CircularProgressBar.class.getSimpleName();
 
 	/**
 	 * used to save the super state on configuration change
@@ -200,7 +200,7 @@ public class HoloCircularProgressBar extends View {
 	 * @param context
 	 *            the context
 	 */
-	public HoloCircularProgressBar(final Context context) {
+	public CircularProgressBar(final Context context) {
 		this(context, null);
 	}
 
@@ -212,7 +212,7 @@ public class HoloCircularProgressBar extends View {
 	 * @param attrs
 	 *            the attrs
 	 */
-	public HoloCircularProgressBar(final Context context, final AttributeSet attrs) {
+	public CircularProgressBar(final Context context, final AttributeSet attrs) {
 		this(context, attrs, R.attr.circularProgressBarStyle);
 	}
 
@@ -226,23 +226,23 @@ public class HoloCircularProgressBar extends View {
 	 * @param defStyle
 	 *            the def style
 	 */
-	public HoloCircularProgressBar(final Context context, final AttributeSet attrs, final int defStyle) {
+	public CircularProgressBar(final Context context, final AttributeSet attrs, final int defStyle) {
 		super(context, attrs, defStyle);
 
 		// load the styled attributes and set their properties
-		final TypedArray attributes = context.obtainStyledAttributes(attrs, R.styleable.HoloCircularProgressBar,
+		final TypedArray attributes = context.obtainStyledAttributes(attrs, R.styleable.CircularProgressBar,
 				defStyle, 0);
 
-		setProgressColor(attributes.getColor(R.styleable.HoloCircularProgressBar_progress_color, Color.CYAN));
-		setProgressBackgroundColor(attributes.getColor(R.styleable.HoloCircularProgressBar_progress_background_color,
+		setProgressColor(attributes.getColor(R.styleable.CircularProgressBar_progress_color, Color.CYAN));
+		setProgressBackgroundColor(attributes.getColor(R.styleable.CircularProgressBar_progress_background_color,
 				Color.MAGENTA));
-		setProgress(attributes.getFloat(R.styleable.HoloCircularProgressBar_progress, 0.0f));
-		setMarkerProgress(attributes.getFloat(R.styleable.HoloCircularProgressBar_marker_progress, 0.0f));
-		setWheelSize((int) attributes.getDimension(R.styleable.HoloCircularProgressBar_stroke_width, 10));
-		mIsThumbEnabled = attributes.getBoolean(R.styleable.HoloCircularProgressBar_thumb_visible, true);
-		mIsMarkerEnabled = attributes.getBoolean(R.styleable.HoloCircularProgressBar_marker_visible, true);
+		setProgress(attributes.getFloat(R.styleable.CircularProgressBar_progress, 0.0f));
+		setMarkerProgress(attributes.getFloat(R.styleable.CircularProgressBar_marker_progress, 0.0f));
+		setWheelSize((int) attributes.getDimension(R.styleable.CircularProgressBar_stroke_width, 10));
+		mIsThumbEnabled = attributes.getBoolean(R.styleable.CircularProgressBar_thumb_visible, true);
+		mIsMarkerEnabled = attributes.getBoolean(R.styleable.CircularProgressBar_marker_visible, true);
 
-		mGravity = attributes.getInt(R.styleable.HoloCircularProgressBar_android_gravity, Gravity.CENTER);
+		mGravity = attributes.getInt(R.styleable.CircularProgressBar_android_gravity, Gravity.CENTER);
 
 		attributes.recycle();
 

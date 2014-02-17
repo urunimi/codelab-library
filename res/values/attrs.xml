@@ -9,7 +9,7 @@
 		<attr format="string" name="separator" />
 	</declare-styleable>
 
-	<declare-styleable name="HoloCircularProgressBar">
+	<declare-styleable name="CircularProgressBar">
 		<attr name="stroke_width" format="dimension" />
 		<attr name="progress" format="float"></attr>
 		<attr name="marker_progress" format="float"></attr>
