@@ -56,6 +56,9 @@ public class Downloader {
 			inputStream = response.getEntity().getContent();
 			long lengthOfFile = response.getEntity().getContentLength();
 
+			File file = new File(filePath);
+			if(file.isFile() == false) file.createNewFile();
+
 			fileOutputStream = new FileOutputStream(filePath);
 			
 			/** URL Connection 방식을 안드로이드에서는 권하고 있지만 Get방식으로 Content등을 읽어올 때 문제가 발생한다.*/
