@@ -22,12 +22,17 @@ public class DebugConfig {
 	/** 고의로 로딩 시간에 딜레이를 더 준다. */
 	public static final int		LOAD_TIME_ADD_MILLIS		= CommonConfig.getVersionConfig() < 0 ? 500 : 0;
 
+	public static Boolean DEBUG = null;
+
 	/**
 	 * 로그캣에 출력을 할지를 얻어온다.
 	 * @return 로그캣에 출력을 할지
 	 */
 	public static boolean isShowLogCat() {
-		return CommonConfig.getVersionConfig() < 0 ? true : false;
-	}
+		if(DEBUG == null) {
+			DEBUG = CommonConfig.getVersionConfig() < 0;
+		}
 
+		return DEBUG;
+	}
 }
