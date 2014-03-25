@@ -11,6 +11,12 @@ android {
             res.srcDirs = ['res']
         }
     }
+
+    lintOptions {
+        // Or, if you prefer, you can continue to check for errors in release builds,
+        // but continue the build even when errors are found:
+        abortOnError false
+    }
 }
 
-apply from: 'https://raw.github.com/chrisbanes/gradle-mvn-push/master/gradle-mvn-push.gradle'
+apply from: 'https://raw.githubusercontent.com/urunimi/gradle-mvn-push/master/gradle-mvn-push.gradle'
