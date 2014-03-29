@@ -25,7 +25,7 @@ This means that you will always use the latest version available.
  
  Copyright 2012 Hovan Yoo
  
- The Netty Project licenses this file to you under the Apache License,
+ This Project licenses this file to you under the Apache License,
  version 2.0 (the "License"); you may not use this file except in compliance
  with the License. You may obtain a copy of the License at:
  
