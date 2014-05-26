@@ -266,39 +266,41 @@ public abstract class ThreadGuest implements Comparable<ThreadGuest> {
      * Chaining guests and run sequentially.<br/>
      * nextGuest will be ready at the last of this guest's chain.<br/>
      *
-     * @param delay     after invocation of {@link #run(long)} or {@link #after(Object)} of this guest,
-     *                  delay to execute() nextGuest.
-     *                  Considered as 0 if smaller than 0.
-     * @param nextGuest will be executed after this guest's {@link #run(long)} or {@link #after(Object)}(if run() returns non-null).<br/>
-     *                  If there is a guest already, then added after last guest of chain.
-     *                  If null, exact next reference will be un-set.
+     * @param delayMillis after invocation of {@link #run(long)} or {@link #after(Object)} of this guest,
+     *                    delay to execute() nextGuest.
+     *                    Considered as 0 if smaller than 0.
+     * @param nextGuest   will be executed after this guest's {@link #run(long)} or {@link #after(Object)}(if run() returns non-null).<br/>
+     *                    If there is already a guest after this, then added at the last of chain.
+     *                    If null, exact next reference will be un-set.
      * @return This instance. not the nextGuest.<br/>
-     * Usage: {@code guest.addChain(0, other1).addChain(0, other2).addChain(0, other3).execute()}
+     * Usage: {@code guest.addChain(0, other1).addChain(17000, other2).addChain(0, other3).execute()}
      */
     @SuppressWarnings("unused")
-    public ThreadGuest addChain(long delay, ThreadGuest nextGuest) {
+    public ThreadGuest addChain(long delayMillis, ThreadGuest nextGuest) {
         if (mChainNextGuest == null) {    // 이 객체에 체인이 없으면 체인을 추가한다.
-            mChainDelay = delay;
+            mChainDelay = delayMillis;
             mChainNextGuest = nextGuest;
         } else {    // 체인이 있으면 그 객체에 대하여 이 메소드를 부른다.
-            mChainNextGuest.addChain(delay, nextGuest);
+            mChainNextGuest.addChain(delayMillis, nextGuest);
         }
         return this;
     }
 
     /**
-     * {@link ThreadGuest#addChain(ChainBlocker, ThreadGuest)}의 인자로 사용된다.
-     * 스레드 체인의 지속을 시간 딜레이 기반이 아닌 이벤트 기반으로 수행하기 위한 매개체.<br/>
+     * Support for Event-based ThreadGuest chain mechanism.
+     * Argument type of {@link ThreadGuest#addChain(ChainBlocker, ThreadGuest)}.<br/>
      * <br/>
-     * {@link #block()}을 호출한 이후 그 blocker 객체를 통과하려고 시도하는 모든 체인은,
-     * 그 blocker 가 관리하는 대기열에 수집된다.<br/>
+     * {@link #block()} makes blocker to blocking state.
+     * Any chain passing through during blocking state,
+     * will be stopped and collected into blocker's internal waiting queue.<br/>
      * <br/>
-     * {@link #unblock()}을 호출하면
-     * 그 시점에 해당 blocker 의 대기열에 수집되어 있는 모든 게스트를 다시 진행시킨다.
-     * 이 때 실행된 게스트는 대기열에서 빠진다.
-     * unblock 상태에서 진행되는 체인은 그냥 그대로 진행되며 대기열에 들어가지 않는다.
+     * {@link #unblock()} makes blocker un-blocking state,
+     * and invoke all waiting chains in the queue at that time.
+     * this invocation flushes and empty the waiting queue.<br/>
+     * <br/>
+     * During un-blocking state, chains will just pass through, not collected.
      *
-     * @author arngard
+     * @author Arngard
      */
     public static final class ChainBlocker {
 
@@ -306,18 +308,18 @@ public abstract class ThreadGuest implements Comparable<ThreadGuest> {
         private boolean isBlocking = true;
 
         /**
-         * 인자의 게스트를 대기열에 등록한다.
-         * 중복 호출해도 무시하지 않고 계속 대기열에 추가된다.
+         * Enqueue the argument into this blocker's wait-queue.
+         * It doesn't check any conditions include uniqueness.
          *
-         * @param guest 대상 게스트
+         * @param guest target.
          */
-        synchronized final void waiting(final ThreadGuest guest) {
+        synchronized final void addWait(final ThreadGuest guest) {
             waitingGuests.add(guest);
         }
 
         /**
-         * @param guest 대상 게스트
-         * @return 대상이 이 블로커의 대기열에 있으면 true.
+         * @param guest target
+         * @return If the target is waiting in this blocker's queue.
          */
         @SuppressWarnings("unused")
         synchronized final boolean isWaiting(final ThreadGuest guest) {
@@ -325,29 +327,29 @@ public abstract class ThreadGuest implements Comparable<ThreadGuest> {
         }
 
         /**
-         * block 상태가 된다.
-         * 이후 unblock 상태가 되기 전까지,
-         * 이 블로커를 통과하려고 시도하는 모든 체인은 대기열에 수집된다.
+         * Start blocking.
+         * From now on, until state change to unblock,
+         * Every chain passing throw this blocker is stopped and entered to this blocker's wait-queue.
          */
         synchronized public void block() {
             isBlocking = true;
         }
 
         /**
-         * @return 블록 중이면 true.
+         * @return True if it is blocking now.
          */
         synchronized public boolean isBlocking() {
             return isBlocking;
         }
 
         /**
-         * {@link #unblock(ThreadGuest)}과 같고, 추가 인자에 대한 동작을 추가로 수행한다.
+         * Similar to {@link #unblock(ThreadGuest)}, and setObject(setObject).
          *
-         * @param guest     대상 게스트. 이 체인의 대기열에 이 게스트가 없으면 아무 동작도 하지 않음.
-         * @param setObject 체인을 계속하기 전에 이 객체가
-         *                  {@link ThreadGuest#setObject(Object)}를 통해 세팅된다.
-         *                  nullable 임에 주의.
-         * @return 대상 게스트가 처리(발견)되었으면 true.
+         * @param guest     target. If it is not in this blocker's queue, nothing happens.
+         * @param setObject {@link ThreadGuest#setObject(Object)} is invoked with this argument before continuation.
+         *                  Nullable.
+         * @return true if target is found and handled.
+         * @see #setObject(Object)
          * @see #unblock(ThreadGuest)
          */
         @SuppressWarnings("unused")
@@ -362,10 +364,10 @@ public abstract class ThreadGuest implements Comparable<ThreadGuest> {
         }
 
         /**
-         * block 상태를 해제하고 체인을 계속한다.
+         * Continue the guest of argument if it's in this blocker's queue.
          *
-         * @param guest 대상 게스트. 이 체인의 대기열에 이 게스트가 없으면 아무 동작도 하지 않음.
-         * @return 대상 게스트가 처리되었으면 true.
+         * @param guest target. If it is not in this blocker's queue, nothing happens.
+         * @return true if target is found and handled.
          * @see #unblock(ThreadGuest, Object)
          */
         @SuppressWarnings("unused")
@@ -379,9 +381,9 @@ public abstract class ThreadGuest implements Comparable<ThreadGuest> {
         }
 
         /**
-         * 이 blocker 의 대기열에 등록된 모든 체인을 계속시킨다.
+         * Continue all the guests in this blocker's queue.
          *
-         * @return 처리된 체인의 개수
+         * @return Count of guests that continued.
          * @see #unblock(ThreadGuest, Object)
          * @see #unblock(ThreadGuest)
          */
@@ -399,21 +401,19 @@ public abstract class ThreadGuest implements Comparable<ThreadGuest> {
     }
 
     /**
-     * {@link #addChain(long, ThreadGuest)}과 비슷한데,
-     * 이 메소드를 통해 세팅된 체인은 이벤트 기반으로 연결된다.<br/>
+     * Similar to {@link #addChain(long, ThreadGuest)}.
+     * Chain blocking is not base on time, based on event.<br/>
      * <br/>
-     * 인자로 넘겨주는 {@link ChainBlocker blocker}의 레퍼런스를 들고 있다가,
-     * block 여부를 컨트롤해주면 된다.<br/>
+     * You can manage {@link ChainBlocker blocker} to control chain blocking.<br/>
      * <br/>
-     * 만일 특정 체인에 대한 unblock 이 실행 시도 전에 수행되는 경우,
-     * 그 체인은 blocking 없이 수행될 것이다.
+     * If it is unblocked before arriving, it will executed without block.
      *
-     * @param blocker   이 인자의 메소드를 통해 체인을 조절한다.
-     * @param nextGuest 이 게스트 다음에 체인으로 연결시키는 게스트.
-     *                  만일 이미 세팅된 체인이 있다면, 체인 구조의 맨 마지막에 추가된다.
-     *                  null 을 주면 이 객체 바로 다음의 체인이 끊긴다.
-     * @return 이 메소드의 작업을 수행한 후, 이 객체를 다시 리턴함.
-     * 인자의 객체를 리턴하는 것이 아님에 주의.
+     * @param blocker   You can manage this instance to block chain.
+     * @param nextGuest will be executed after this guest's {@link #run(long)} or {@link #after(Object)}(if run() returns non-null).<br/>
+     *                  If there is already a guest after this, then added at the last of chain.
+     *                  If null, exact next reference will be un-set.
+     * @return This instance. not the nextGuest.<br/>
+     * Usage: {@code guest.addChain(blocker1, other1).addChain(0, other2).addChain(blocker2, other3).execute()}
      */
     @SuppressWarnings("unused")
     public ThreadGuest addChain(ChainBlocker blocker, ThreadGuest nextGuest) {

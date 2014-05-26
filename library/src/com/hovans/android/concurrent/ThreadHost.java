@@ -253,7 +253,7 @@ class ThreadHost {
         // 체인이 있다.
         if (guest.mThreadChainBlocker != null) {    // 체크아웃 이벤트 기반 체인인 경우
             if (guest.mThreadChainBlocker.isBlocking()) {    // 블락 상태라면
-                guest.mThreadChainBlocker.waiting(guest);    // 아무것도 하지 않고 체크아웃을 기다려야 한다.
+                guest.mThreadChainBlocker.addWait(guest);    // 아무것도 하지 않고 체크아웃을 기다려야 한다.
                 return;
             }
         }
