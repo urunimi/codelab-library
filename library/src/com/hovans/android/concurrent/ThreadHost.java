@@ -19,45 +19,45 @@ import java.util.concurrent.TimeUnit;
  * 환경에는 작업 공간과 대기열이 있다.
  * 대기열에 {@link ThreadGuest}가 들어오면 하나씩 작업 공간에 옮겨져 게스트 내부에 정의된 작업을 수행한다.<br>
  * <br>
- * 스레드 자원은 singleton으로 사용된다.
+ * 스레드 자원은 singleton 으로 사용된다.
  * 이 클래스에 최초로 접근할 때 스레드는 작동을 시작하고 대기 상태에 들어간다.<br>
  *
- * @author arngard
+ * @author Arngard
  * @see ThreadGuest
  */
 public class ThreadHost {
 
-	/*
-     * ThreadHost의 작업 스레드 내부에서 Looper 를 얻을 수 있게 만들어 보려고도 했다.
-	 * 결론적으로 말하자면 답이 안 나온다.
-	 * 
-	 * Looper를 사용하려면 스레드를 만들 때 HandlerThread를 사용해야 한다.
-	 * ThreadFactory 를 경유하여 ThreadPoolExecutor 자원으로 HandlerThread 를
-	 * 넘겨주면, 스레딩은 된다. 그러나 어떻게 해도 Looper를 돌릴 수가 없다.
-	 * 
-	 * 그리고 HandlerThread 로 구현할 경우 ThreadGuest 에 우선순위를 부여할 수 없다.
-	 * 우선순위를 구현한다는 것이 ThreadGuest 설계의 중요한 요구사항이었기 때문에
-	 * 이 부분은 포기할 수 없다.
-	 * 
-	 * 이에 대해 정보를 찾다가, 다음 내용을 얻었다.
-	 * (http://www.mail-archive.com/android-developers@googlegroups.com/msg62791.html)
-	 * "AsyncTask and Looper are two fundamentally different threading models,
-	 * which are not compatible"
-	 * "Actually it mean the two threading models are not compatible, so you can't
-	 * use these together.  Looper expects to to own the thread that you associate
-	 * it with, while AsyncTask owns the thread it creates for you to run in the
-	 * background.  They thus conflict with each other, and can't be used together."
-	 * 
-	 * AsyncTask 는 내부적으로 ThreadPoolExecutor 를 사용한다.
-	 * ThreadHost 는 AsyncTask 와 같이 ThreadPoolExecutor 를 사용했다.
-	 * 결국 ThreadHost 역시 Looper 의 논리와는 호환성이 없다는 이야기다.
-	 * 
-	 * 사실 Looper 가 필요한 경우에는 HandlerThread 를 사용해서 별도의 스레드를 만들면 된다.
-	 * ThreadHost 가 작업 우선순위를 포기하고 Looper 를 선택한다면, 그것은 단지
-	 * HandlerThread 를 래핑하는 것밖에 되지 않을 것이다.
-	 * 그런 것은 굳이 라이브러리로 만들어 놓을 필요가 없는 것 같다.
-	 * 따라서 여기에서는 Looper 를 포기하고 우선순위 구현을 선택하도록 한다.
-	 * */
+    /*
+     * ThreadHost 의 작업 스레드 내부에서 Looper 를 얻을 수 있게 만들어 보려고도 했다.
+     * 결론적으로 말하자면 답이 안 나온다.
+     *
+     * Looper 를 사용하려면 스레드를 만들 때 HandlerThread 를 사용해야 한다.
+     * ThreadFactory 를 경유하여 ThreadPoolExecutor 자원으로 HandlerThread 를
+     * 넘겨주면, 스레딩은 된다. 그러나 어떻게 해도 Looper 를 돌릴 수가 없다.
+     *
+     * 그리고 HandlerThread 로 구현할 경우 ThreadGuest 에 우선순위를 부여할 수 없다.
+     * 우선순위를 구현한다는 것이 ThreadGuest 설계의 중요한 요구사항이었기 때문에
+     * 이 부분은 포기할 수 없다.
+     *
+     * 이에 대해 정보를 찾다가, 다음 내용을 얻었다.
+     * (http://www.mail-archive.com/android-developers@googlegroups.com/msg62791.html)
+     * "AsyncTask and Looper are two fundamentally different threading models,
+     * which are not compatible"
+     * "Actually it mean the two threading models are not compatible, so you can't
+     * use these together.  Looper expects to to own the thread that you associate
+     * it with, while AsyncTask owns the thread it creates for you to run in the
+     * background.  They thus conflict with each other, and can't be used together."
+     *
+     * AsyncTask 는 내부적으로 ThreadPoolExecutor 를 사용한다.
+     * ThreadHost 는 AsyncTask 와 같이 ThreadPoolExecutor 를 사용했다.
+     * 결국 ThreadHost 역시 Looper 의 논리와는 호환성이 없다는 이야기다.
+     *
+     * 사실 Looper 가 필요한 경우에는 HandlerThread 를 사용해서 별도의 스레드를 만들면 된다.
+     * ThreadHost 가 작업 우선순위를 포기하고 Looper 를 선택한다면, 그것은 단지
+     * HandlerThread 를 래핑하는 것밖에 되지 않을 것이다.
+     * 그런 것은 굳이 라이브러리로 만들어 놓을 필요가 없는 것 같다.
+     * 따라서 여기에서는 Looper 를 포기하고 우선순위 구현을 선택하도록 한다.
+     * */
 
     /**
      * 작업 공간
@@ -83,6 +83,10 @@ public class ThreadHost {
         threadingStart();
     }
 
+    private ThreadHost() {
+    }
+
+    @SuppressWarnings("unused")
     public static ThreadPoolExecutor getExecutor() {
         return executor;
     }
@@ -138,13 +142,14 @@ public class ThreadHost {
                     queue);
         }
         if (!executor.prestartCoreThread()) {
-            Log.w(DebugConfig.LOG_TAG, "Fail to prestart core thread. It may already Started.");    // 공공연히 알려야 하므로 로그 래핑을 쓰지 않음.
+            Log.w(DebugConfig.LOG_TAG, "Fail to pre-start core thread. It may already Started.");    // 공공연히 알려야 하므로 로그 래핑을 쓰지 않음.
         }
     }
 
     /**
      * 스레드풀의 연산을 종료한다. 동기화에 안전하지 않으므로 너무 자주 호출하지 말 것.
      */
+    @SuppressWarnings("unused")
     synchronized protected static void threadingEnd() {
         executor.shutdown();
         executor = null;
@@ -170,7 +175,7 @@ public class ThreadHost {
     }
 
     /**
-     * 인자의 게스트에 정의된 작업을 수행하는 Runnable을 만든다.
+     * 인자의 게스트에 정의된 작업을 수행하는 Runnable 을 만든다.
      *
      * @param offerTime 주 대기열에 대기시키기를 시도하는 시각
      * @param guest     작업이 정의된 대상
@@ -194,7 +199,7 @@ public class ThreadHost {
     private static void runGuest(final long offerTime, final ThreadGuest guest) {
         final long waitTime = android.os.SystemClock.elapsedRealtime() - offerTime;    // offer 이후 기다린 시각
         if (waitTime > ThreadConfig.THREAD_WAIT_TIME) {    // 너무 늦은 경우
-            if (guest.waitTimeout(waitTime)) {    // 늦었는데 계속할까? 타임아웃 true이면
+            if (guest.waitTimeout(waitTime)) {    // 늦었는데 계속할까? 타임아웃 true 이면
                 return;    // 리턴해버림.
             }
         }
@@ -202,7 +207,7 @@ public class ThreadHost {
             final Object runResult = guest.run(waitTime);    // 본문 실행
             handleResult(guest, runResult);
         } catch (Exception e) {
-            Log.e(DebugConfig.LOG_TAG, "Exception occured in ThreadGuest.run()", e);    // 이건 run안에서 발생한 에러이다. 공공연히 알려야 하므로 로그 래핑을 쓰지 않음.
+            Log.e(DebugConfig.LOG_TAG, "Exception occurred in ThreadGuest.run()", e);    // 이건 run 안에서 발생한 에러이다. 공공연히 알려야 하므로 로그 래핑을 쓰지 않음.
         }
     }
 
@@ -211,7 +216,7 @@ public class ThreadHost {
      * 결과를 보고 게스트 체인을 진행하거나 {@link ThreadGuest#after(Object) after()}를 실행하거나 한다.
      *
      * @param guest  작업 대상
-     * @param result guest의 {@link ThreadGuest#run(long) run()}이 리턴한 객체.
+     * @param result guest 의 {@link ThreadGuest#run(long) run()}이 리턴한 객체.
      */
     private static void handleResult(final ThreadGuest guest, final Object result) {
         try {
@@ -234,7 +239,7 @@ public class ThreadHost {
     }
 
     /**
-     * 인자의 스레드 게스트 안에 체인이 세팅되어 있다면, 다음 게스트를 offer하는 작업이 수행될 것이다.
+     * 인자의 스레드 게스트 안에 체인이 세팅되어 있다면, 다음 게스트를 offer 하는 작업이 수행될 것이다.
      * 체인이 없으면 그냥 종료함.
      *
      * @param guest 현재 수행중인 스레드 게스트.

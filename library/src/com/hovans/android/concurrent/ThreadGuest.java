@@ -14,14 +14,14 @@ import java.util.concurrent.atomic.AtomicLong;
  * {@link #setObject(Object)}와 {@link #getObject()}를 통해
  * 게스트 사이에서 임의의 객체를 전달하는 것을 보여준다.<br>
  * ex)<pre>
- * ThreadGuest.ChainBlocker bloker = new ThreadGuest.ChainBlocker();
- * bloker.block();
+ * ThreadGuest.ChainBlocker blocker = new ThreadGuest.ChainBlocker();
+ * blocker.block();
  * new ThreadGuest() {
  *     public void run(long waitTimeMillis) {
  *         setObject(somethingGreat());	// 객체를 set 해둔다.
  *     }
  * }
- * .addChain(bloker, new ThreadGuest() {
+ * .addChain(blocker, new ThreadGuest() {
  *     public void run(long waitTimeMillis) {
  *         somethingAwesome();
  *     }
@@ -33,43 +33,49 @@ import java.util.concurrent.atomic.AtomicLong;
  * })
  * .execute();
  * somethingOther();
- * bloker.unblock();</pre>
+ * blocker.unblock();</pre>
  * <p/>
  * 위 예제에서 유저 메소드는 다음과 같은 순서로 수행될 것이다.<br>
  * somethingOther()<br>
- * somethingGreat()	// ThreadHost에서 수행됨<br>
- * somethingAwesome()	// ThreadHost에서 수행됨. bloker.unblock() 다음에야 수행될 수 있음.<br>
- * somethingPerfect()	// ThreadHost에서 수행됨.<br>
+ * somethingGreat()	// ThreadHost 에서 수행됨<br>
+ * somethingAwesome()	// ThreadHost 에서 수행됨. blocker.unblock() 다음에야 수행될 수 있음.<br>
+ * somethingPerfect()	// ThreadHost 에서 수행됨.<br>
  * <br>
  *
- * @author arngard
+ * @author Arngard
  */
 public abstract class ThreadGuest implements Comparable<ThreadGuest> {
 
-	/* 이하 우선순위 수치는 MS윈도우의 프로세스 우선순위 값을 참고함. 참고로 윈도우의 System idle은 0이다. */
+	/* 이하 우선순위 수치는 MS 윈도우의 프로세스 우선순위 값을 참고함. 참고로 윈도우의 System idle 은 0이다. */
     /**
-     * 게스트의 우선순위 프리셋. 가장 높은 우선순위. {@value #PRIORITY_GREEDY}
+     * 게스트의 우선순위 프리셋. 가장 높은 우선순위.
      */
+    @SuppressWarnings("unused")
     public static final int PRIORITY_GREEDY = 24;
     /**
-     * 게스트의 우선순위 프리셋. {@value #PRIORITY_HIGH}
+     * 게스트의 우선순위 프리셋.
      */
+    @SuppressWarnings("unused")
     public static final int PRIORITY_HIGH = 13;
     /**
-     * 게스트의 우선순위 프리셋. {@value #PRIORITY_ABOVE_NORMAL}
+     * 게스트의 우선순위 프리셋.
      */
+    @SuppressWarnings("unused")
     public static final int PRIORITY_ABOVE_NORMAL = 10;
     /**
-     * 게스트의 우선순위 프리셋. 기본값이다. {@value #PRIORITY_NORMAL}
+     * 게스트의 우선순위 프리셋. 기본값이다.
      */
+    @SuppressWarnings("unused")
     public static final int PRIORITY_NORMAL = 8;
     /**
-     * 게스트의 우선순위 프리셋. {@value #PRIORITY_BELOW_NORMAL}
+     * 게스트의 우선순위 프리셋.
      */
+    @SuppressWarnings("unused")
     public static final int PRIORITY_BELOW_NORMAL = 6;
     /**
-     * 게스트의 우선순위 프리셋. 가장 낮은 우선순위. {@value #PRIORITY_IDLE}
+     * 게스트의 우선순위 프리셋. 가장 낮은 우선순위.
      */
+    @SuppressWarnings("unused")
     public static final int PRIORITY_IDLE = 4;
 
     /**
@@ -77,7 +83,7 @@ public abstract class ThreadGuest implements Comparable<ThreadGuest> {
      */
     static final AtomicLong mSeqSource = new AtomicLong(Long.MIN_VALUE);
     /**
-     * 이 스레드 게스트의 ID. 식별번호이면서 동시에 FIFO를 지향하기 위해 사용된다.
+     * 이 스레드 게스트의 ID. 식별번호이면서 동시에 FIFO 를 지향하기 위해 사용된다.
      */
     final long mSeqNum;
 
@@ -129,7 +135,7 @@ public abstract class ThreadGuest implements Comparable<ThreadGuest> {
     }
 
     /**
-     * Priority와 ID를 기준으로 다른 guest와의 우선 관계를 비교한다.<br>
+     * Priority 와 ID를 기준으로 다른 guest 와의 우선 관계를 비교한다.<br>
      * 결과의 정렬 방향은 {@link PriorityBlockingQueue}의 비교 연산과 관련되어 있다.
      *
      * @return 우선순위와 ID를 이용하여, 비교대상에 비해 우선권을 가지는 경우 -1 을 리턴.
@@ -150,15 +156,15 @@ public abstract class ThreadGuest implements Comparable<ThreadGuest> {
      * @return 비교 결과
      * @see #compareTo(ThreadGuest)
      */
-    private final int compareToImpl(ThreadGuest another) {
+    private int compareToImpl(ThreadGuest another) {
         /*
 		 * 결과의 정렬 방향은 {@link PriorityBlockingQueue}의 비교 연산과 관련되어 있다. 수정시 주의.
 		 * */
         if (getPriority() == another.getPriority()) {    // 먼저 priority 비교해보자
-            if (mSeqNum == another.mSeqNum)    // priority에 차이가 없다면 seqNum을 비교한다.
+            if (mSeqNum == another.mSeqNum)    // priority 에 차이가 없다면 seqNum 을 비교한다.
                 return 0;
             else {
-                return mSeqNum < another.mSeqNum ? -1 : 1;    // seqNum은 숫자가 작으면 우선적이다.
+                return mSeqNum < another.mSeqNum ? -1 : 1;    // seqNum 은 숫자가 작으면 우선적이다.
             }
         } else {
             return getPriority() > another.getPriority() ? -1 : 1;    // priority 는 숫자가 크면 우선적이다.
@@ -185,7 +191,7 @@ public abstract class ThreadGuest implements Comparable<ThreadGuest> {
             return false;
         }
         // 내용 비교
-        return compareToImpl((ThreadGuest) o) == 0 ? true : false;
+        return compareToImpl((ThreadGuest) o) == 0;
     }
 
     /**
@@ -224,7 +230,7 @@ public abstract class ThreadGuest implements Comparable<ThreadGuest> {
      * @param waitTimeMillis 이 게스트가 대기열에서 기다린 시간.
      * @return 작업을 계속할지 여부. false 이면 {@link #run(long)} 을 실행한다.
      * true 이면 그대로 종료한다.
-     * 이 메소드를 오버라이드하지 않은 경우, false를 리턴한다.
+     * 이 메소드를 오버라이드하지 않은 경우, false 를 리턴한다.
      */
     public boolean waitTimeout(long waitTimeMillis) {
         return false;
@@ -236,13 +242,13 @@ public abstract class ThreadGuest implements Comparable<ThreadGuest> {
      * {@link ThreadHost}의 작업 스레드에서 호출된다.
      *
      * @param waitTimeMillis 이 게스트가 대기열에서 기다린 시간.
-     * @return 여기에서 null이 아닌 것을 리턴하면, {@link #after(Object)}를 수행한다.
-     * null을 리턴하면 그대로 종료.
+     * @return 여기에서 null 이 아닌 것을 리턴하면, {@link #after(Object)}를 수행한다.
+     * null 을 리턴하면 그대로 종료.
      */
     public abstract Object run(long waitTimeMillis);
 
     /**
-     * {@link #run(long)}에서 null이 아닌 객체를 리턴할 경우에만 호출된다.<br>
+     * {@link #run(long)}에서 null 이 아닌 객체를 리턴할 경우에만 호출된다.<br>
      * 이 메소드는 작업 스레드가 아닌 메인 스레드에서 호출된다.
      * {@link #execute()}한 스레드가 아님에 주의.
      * 다른 게스트와 비동기적으로 호출된다.<br>
@@ -250,6 +256,7 @@ public abstract class ThreadGuest implements Comparable<ThreadGuest> {
      *
      * @param result {@link #run(long)}에서 리턴했던 객체.
      */
+    @SuppressWarnings("unused")
     public void after(Object result) {
         // do nothing
     }
@@ -261,14 +268,15 @@ public abstract class ThreadGuest implements Comparable<ThreadGuest> {
      * 필요하다면 대기시키기 전에 지연 시간을 줄 수 있다.
      *
      * @param delay     이 객체의 {@link #run(long)} 또는 {@link #after(Object)}가 수행된 후,
-     *                  nextGuest가 대기열에 들어가기 전까지 줄 지연시간.
+     *                  nextGuest 가 대기열에 들어가기 전까지 줄 지연시간.
      *                  0보다 작으면 0으로 취급된다.
      * @param nextGuest 이 게스트 다음에 체인으로 연결시키는 게스트.
      *                  만일 이미 세팅된 체인이 있다면, 체인 구조의 맨 마지막에 추가된다.
-     *                  null을 주면 이 객체 바로 다음의 체인이 끊긴다.
+     *                  null 을 주면 이 객체 바로 다음의 체인이 끊긴다.
      * @return 이 메소드의 작업을 수행한 후, 이 객체를 다시 리턴함.
      * 인자의 객체를 리턴하는 것이 아님에 주의.
      */
+    @SuppressWarnings("unused")
     public ThreadGuest addChain(long delay, ThreadGuest nextGuest) {
         if (mChainNextGuest == null) {    // 이 객체에 체인이 없으면 체인을 추가한다.
             mChainDelay = delay;
@@ -284,10 +292,10 @@ public abstract class ThreadGuest implements Comparable<ThreadGuest> {
      * 스레드 체인의 지속을 시간 딜레이 기반이 아닌 이벤트 기반으로 수행하기 위한 매개체.<br>
      * <br>
      * {@link #block()}을 호출한 이후 그 blocker 객체를 통과하려고 시도하는 모든 체인은,
-     * 그 blocker가 관리하는 대기열에 수집된다.<br>
+     * 그 blocker 가 관리하는 대기열에 수집된다.<br>
      * <br>
      * {@link #unblock()}을 호출하면
-     * 그 시점에 해당 blocker의 대기열에 수집되어 있는 모든 게스트를 다시 진행시킨다.
+     * 그 시점에 해당 blocker 의 대기열에 수집되어 있는 모든 게스트를 다시 진행시킨다.
      * 이 때 실행된 게스트는 대기열에서 빠진다.
      * unblock 상태에서 진행되는 체인은 그냥 그대로 진행되며 대기열에 들어가지 않는다.
      *
@@ -312,6 +320,7 @@ public abstract class ThreadGuest implements Comparable<ThreadGuest> {
          * @param guest 대상 게스트
          * @return 대상이 이 블로커의 대기열에 있으면 true.
          */
+        @SuppressWarnings("unused")
         synchronized final boolean isWaiting(final ThreadGuest guest) {
             return waitingGuests.contains(guest);
         }
@@ -338,10 +347,11 @@ public abstract class ThreadGuest implements Comparable<ThreadGuest> {
          * @param guest     대상 게스트. 이 체인의 대기열에 이 게스트가 없으면 아무 동작도 하지 않음.
          * @param setObject 체인을 계속하기 전에 이 객체가
          *                  {@link ThreadGuest#setObject(Object)}를 통해 세팅된다.
-         *                  nullable임에 주의.
+         *                  nullable 임에 주의.
          * @return 대상 게스트가 처리(발견)되었으면 true.
          * @see #unblock(ThreadGuest)
          */
+        @SuppressWarnings("unused")
         synchronized public boolean unblock(final ThreadGuest guest, final Object setObject) {
             isBlocking = false;
             if (waitingGuests.remove(guest)) {
@@ -359,6 +369,7 @@ public abstract class ThreadGuest implements Comparable<ThreadGuest> {
          * @return 대상 게스트가 처리되었으면 true.
          * @see #unblock(ThreadGuest, Object)
          */
+        @SuppressWarnings("unused")
         synchronized public boolean unblock(final ThreadGuest guest) {
             isBlocking = false;
             if (waitingGuests.remove(guest)) {
@@ -369,12 +380,13 @@ public abstract class ThreadGuest implements Comparable<ThreadGuest> {
         }
 
         /**
-         * 이 blocker의 대기열에 등록된 모든 체인을 계속시킨다.
+         * 이 blocker 의 대기열에 등록된 모든 체인을 계속시킨다.
          *
          * @return 처리된 체인의 개수
          * @see #unblock(ThreadGuest, Object)
          * @see #unblock(ThreadGuest)
          */
+        @SuppressWarnings("unused")
         synchronized public int unblock() {
             isBlocking = false;
             int reVal = waitingGuests.size();
@@ -394,16 +406,17 @@ public abstract class ThreadGuest implements Comparable<ThreadGuest> {
      * 인자로 넘겨주는 {@link ChainBlocker blocker}의 레퍼런스를 들고 있다가,
      * block 여부를 컨트롤해주면 된다.<br>
      * <br>
-     * 만일 특정 체인에 대한 unblock이 실행 시도 전에 수행되는 경우,
+     * 만일 특정 체인에 대한 unblock 이 실행 시도 전에 수행되는 경우,
      * 그 체인은 blocking 없이 수행될 것이다.
      *
      * @param blocker   이 인자의 메소드를 통해 체인을 조절한다.
      * @param nextGuest 이 게스트 다음에 체인으로 연결시키는 게스트.
      *                  만일 이미 세팅된 체인이 있다면, 체인 구조의 맨 마지막에 추가된다.
-     *                  null을 주면 이 객체 바로 다음의 체인이 끊긴다.
+     *                  null 을 주면 이 객체 바로 다음의 체인이 끊긴다.
      * @return 이 메소드의 작업을 수행한 후, 이 객체를 다시 리턴함.
      * 인자의 객체를 리턴하는 것이 아님에 주의.
      */
+    @SuppressWarnings("unused")
     public ThreadGuest addChain(ChainBlocker blocker, ThreadGuest nextGuest) {
         if (blocker == null) {
             throw new NullPointerException("ChainBlocker is null.");
@@ -419,10 +432,11 @@ public abstract class ThreadGuest implements Comparable<ThreadGuest> {
 
     /**
      * 이 메소드는 일종의 race condition 체크를 하기 위해 존재한다.
-     * true를 리턴하는 경우, 해당 체인은 주의깊게 사용해야 한다.
+     * true 를 리턴하는 경우, 해당 체인은 주의깊게 사용해야 한다.
      *
      * @return 이 게스트에 현재 세팅된 체인이, 순환 구조로 진입할 것이 예상되는 경우 true.
      */
+    @SuppressWarnings("unused")
     public boolean isCircularChain() {
         ThreadGuest pointer = this;
         while (pointer.mChainNextGuest != null) {
