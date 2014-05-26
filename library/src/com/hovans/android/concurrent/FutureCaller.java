@@ -8,13 +8,12 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 /**
- * For get {@link ThreadGuest}'s result, synchronously.<br>
- * <br>
- * Make new {@link ThreadGuest}, run and wait result.
- * Warn to avoid potential deadlock.
- * Don't execute in another {@link FutureCaller} or {@link ThreadGuest}<br>
- * <br>
- * Ex)<pre>
+ * Simple guide to get {@link ThreadGuest}'s result, synchronously.<br/>
+ * <br/>
+ * Be aware of potential deadlock.
+ * Don't execute in another {@link FutureCaller} or {@link ThreadGuest}<br/>
+ * <br/>
+ * ex)<pre>
  * Integer val = new FutureCaller&lt;Integer&gt;() {
  *     public Integer call() throws Exception {
  *         Integer great = somethingGreat(); // Running on ThreadHost
@@ -54,13 +53,13 @@ public abstract class FutureCaller<T> implements Callable<T> {
      * Run {@link #call()}, and return the result.
      * It will block current thread.
      *
-     * @return 결과.
+     * @return result of {@link ThreadGuest#run(long)}.
      * @throws CancellationException if the computation was cancelled
      * @throws InterruptedException  if the current thread was interrupted while waiting
      * @throws ExecutionException    if the computation threw an exception
      * @see #execute(long, TimeUnit)
      */
-    public T execute() throws CancellationException, InterruptedException, ExecutionException, TimeoutException {
+    public T execute() throws CancellationException, InterruptedException, ExecutionException {
         executeImpl();
         return mFuture.get();
     }
@@ -69,9 +68,9 @@ public abstract class FutureCaller<T> implements Callable<T> {
      * Run {@link #call()}, and return the result.
      * It will block current thread, until time-out.
      *
-     * @param timeout {@link FutureTask#get(long, java.util.concurrent.TimeUnit)} 의 인자.
-     * @param unit    {@link FutureTask#get(long, java.util.concurrent.TimeUnit)} 의 인자.
-     * @return 결과.
+     * @param timeout argument of {@link FutureTask#get(long, java.util.concurrent.TimeUnit)}
+     * @param unit    argument of {@link FutureTask#get(long, java.util.concurrent.TimeUnit)}
+     * @return result of {@link ThreadGuest#run(long)}.
      * @throws CancellationException if the computation was cancelled
      * @throws InterruptedException  if the current thread was interrupted while waiting
      * @throws ExecutionException    if the computation threw an exception

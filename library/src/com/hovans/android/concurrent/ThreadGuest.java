@@ -1,24 +1,24 @@
 package com.hovans.android.concurrent;
 
-import com.hovans.android.constant.ThreadConfig;
-
 import java.util.ArrayList;
 import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * ThreadHost 가 제공하는 백그라운드 스레드 위에서 실행되는 코드를 정의하는 틀.
- * 비선형 체인을 구성할 때에는 주의깊게 사용해야 함.<br>
- * <br>
- * 아래 예제는 스레드 게스트의 체인을 만들고 실행하며,
- * {@link #setObject(Object)}와 {@link #getObject()}를 통해
- * 게스트 사이에서 임의의 객체를 전달하는 것을 보여준다.<br>
+ * Contents of method run() will be executed on background thread of ThreadHost.
+ * And It will get back to main thread with after().
+ * Offering interface of chaining several ThreadGuests, by<br/>
+ * <br/>
+ * Be aware of potential deadlock.<br/>
+ * <br/>
+ * This example shows how to make and run thread guest chain,
+ * and passing any object with {@link #setObject(Object)} and {@link #getObject()}.<br/>
  * ex)<pre>
  * ThreadGuest.ChainBlocker blocker = new ThreadGuest.ChainBlocker();
  * blocker.block();
  * new ThreadGuest() {
  *     public void run(long waitTimeMillis) {
- *         setObject(somethingGreat());	// 객체를 set 해둔다.
+ *         setObject(somethingGreat());
  *     }
  * }
  * .addChain(blocker, new ThreadGuest() {
@@ -28,18 +28,18 @@ import java.util.concurrent.atomic.AtomicLong;
  * })
  * .addChain(200, new ThreadGuest() {
  *     public void run(long waitTimeMillis) {
- *         somethingPerfect(getObject());	// 체인의 앞쪽에서 마지막으로 set 했던 객체를 get.
+ *         somethingPerfect(getObject());
  *     }
  * }).execute();
  * somethingOther();
  * blocker.unblock();</pre>
  * <p/>
- * 위 예제에서 유저 메소드는 다음과 같은 순서로 수행될 것이다.<br>
- * somethingOther()<br>
- * somethingGreat()	// ThreadHost 에서 수행됨<br>
- * somethingAwesome()	// ThreadHost 에서 수행됨. blocker.unblock() 다음에야 수행될 수 있음.<br>
- * somethingPerfect()	// ThreadHost 에서 수행됨.<br>
- * <br>
+ * The methods will be executed in this order.<br/>
+ * somethingOther()<br/>
+ * somethingGreat()	// on ThreadHost.<br/>
+ * somethingAwesome()	// on ThreadHost, after blocker.unblock().<br/>
+ * somethingPerfect()	// on ThreadHost.<br/>
+ * <br/>
  *
  * @author Arngard
  */
@@ -134,12 +134,12 @@ public abstract class ThreadGuest implements Comparable<ThreadGuest> {
     }
 
     /**
-     * Priority 와 ID를 기준으로 다른 guest 와의 우선 관계를 비교한다.<br>
-     * 결과의 정렬 방향은 {@link PriorityBlockingQueue}의 비교 연산과 관련되어 있다.
+     * Compare to another ThreadGuest, by Priority and ID.<br/>
+     * Result of comparison affects order in {@link PriorityBlockingQueue} on ThreadHost.
      *
-     * @return 우선순위와 ID를 이용하여, 비교대상에 비해 우선권을 가지는 경우 -1 을 리턴.
-     * 인자가 더 우선이면 1을 리턴한다. 같으면 0인데, 정상 작동시 이 경우는 나올 수 없다.
-     * @see java.lang.Comparable#compareTo(java.lang.Object)
+     * @return -1 if prior to another. 1 if another is prior. 0 if same, but actually 0 will be returned if only if (another == this).
+     * @see #getPriority()
+     * @see #getId()
      */
     @Override
     public int compareTo(ThreadGuest another) {
@@ -147,17 +147,18 @@ public abstract class ThreadGuest implements Comparable<ThreadGuest> {
     }
 
     /**
-     * {@link #compareTo(ThreadGuest)}와 {@link #equals(Object)}의 대칭성을 보장하며,
-     * 코드 중복을 피하고,
-     * 동시에 Object 클래스를 거쳐 호출되는 것을 막기 위해 별도의 인라이닝 가능한 메소드로 분리.
+     * For ensure semantic consistency of {@link #compareTo(ThreadGuest)} and {@link #equals(Object)}.
+     * And avoid redundancy.
+     * 또한 Object 클래스를 거쳐 호출되는 것을 막기 위해 별도의 인라이닝 가능한 메소드로 분리.
      *
-     * @param another 비교 대상
-     * @return 비교 결과
+     * @param another comparison target.
+     * @return result of comparison.
      * @see #compareTo(ThreadGuest)
+     * @see #equals(Object)
      */
     private int compareToImpl(ThreadGuest another) {
         /*
-		 * 결과의 정렬 방향은 {@link PriorityBlockingQueue}의 비교 연산과 관련되어 있다. 수정시 주의.
+         * 결과의 정렬 방향은 {@link PriorityBlockingQueue}의 비교 연산과 관련되어 있다. 수정시 주의.
 		 * */
         if (getPriority() == another.getPriority()) {    // 먼저 priority 비교해보자
             if (mSeqNum == another.mSeqNum)    // priority 에 차이가 없다면 seqNum 을 비교한다.
@@ -171,9 +172,8 @@ public abstract class ThreadGuest implements Comparable<ThreadGuest> {
     }
 
     /**
-     * {@link #compareTo(ThreadGuest)}와 같은 논리로, 동일한 내용의 게스트인지 판단한다.
-     *
-     * @see java.lang.Object#equals(java.lang.Object)
+     * Compares this instance with the specified object and indicates if they are equal,<br/>
+     * with logic of {@link #compareTo(ThreadGuest)}.
      */
     @Override
     public boolean equals(Object o) {
@@ -194,66 +194,68 @@ public abstract class ThreadGuest implements Comparable<ThreadGuest> {
     }
 
     /**
-     * 이 게스트에 세팅된 우선순위를 얻는다.
-     *
-     * @return 이 게스트의 우선순위를 반환한다.
+     * @return priority of this guest.
      */
     public int getPriority() {
         return mPriority;
     }
 
     /**
-     * 게스트의 ID는 전역 공간에서 유일하다. 게스트가 생성될 때 발급받는다.
-     * 먼저 발급받은 게스트가 작은 값을 갖는다.
+     * ID of guest is unique in global-runtime space. Is assigned when creating new instance.
+     * Value grows bigger for new instance.
      *
-     * @return 이 게스트의 ID.
+     * @return ID of this guest.
      */
     public long getId() {
         return mSeqNum;
     }
 
     /**
-     * 이 게스트가 {@link ThreadHost}의 대기열에 진입하기를 실패한 경우 호출됨.
-     * offer()의 스레드에서 수행된다.
-     * 이 메소드를 오버라이드하지 않으면 아무 작업도 하지 않는다.
+     * It will be invoked if this guest is failed to enter {@link ThreadHost}.
+     * Will be invoked on the thread of {@link #execute()}.<br/>
+     * <br/>
+     * It will do nothing if you don't override this method.
      */
     public void offerFail() {
         // do nothing
     }
 
     /**
-     * {@link ThreadConfig#THREAD_WAIT_TIME}에 정의된 타임아웃 시간보다 작업 대기 시간이 더 오래된 경우.
-     * 정확한 시간에 불리는 것이 아니라, 부를 수 있을 때 불림.
-     * {@link ThreadHost}의 작업 스레드에서 호출된다.
+     * <font color=#FF0000>Deprecated. It will not be invoked anymore.</font><br/>
+     * <br/>
+     * Guest will not be invoked at direct time, it will be invoked when it can be.
+     * On the thread of {@link ThreadHost}.
+     * If you want to cancel task by checking timeout, you can use this guide.<br/>
      *
-     * @param waitTimeMillis 이 게스트가 대기열에서 기다린 시간.
-     * @return 작업을 계속할지 여부. false 이면 {@link #run(long)} 을 실행한다.
-     * true 이면 그대로 종료한다.
-     * 이 메소드를 오버라이드하지 않은 경우, false 를 리턴한다.
+     * @param waitTimeMillis Wait time of this guest in queue.
+     * @return Whether to continue.<br/>
+     * If false, wait more and {@link #run(long)}.<br/>
+     * If true, Terminate this guest and cancel the wait.<br/>
+     * It will return false if you don't override this method.
      */
+    @Deprecated
     public boolean waitTimeout(long waitTimeMillis) {
         return false;
     }
 
     /**
-     * 작업을 수행한다.<br>
-     * 정상적으로 게스트의 차례가 돌아온 경우 호출된다.
-     * {@link ThreadHost}의 작업 스레드에서 호출된다.
+     * Run the task defined.<br/>
+     * On the thread of {@link ThreadHost}.
      *
-     * @param waitTimeMillis 이 게스트가 대기열에서 기다린 시간.
-     * @return 여기에서 null 이 아닌 것을 리턴하면, {@link #after(Object)}를 수행한다.
-     * null 을 리턴하면 그대로 종료.
+     * @param waitTimeMillis Wait time of this guest in queue.
+     * @return If you return non-null object here, {@link #after(Object)} will be invoked.
+     * If you return null, It will be finished.
      */
     public abstract Object run(long waitTimeMillis);
 
     /**
-     * {@link #run(long)}에서 null 이 아닌 객체를 리턴할 경우에만 호출된다.<br>
-     * 이 메소드는 작업 스레드가 아닌 메인 스레드에서 호출된다.
-     * {@link #execute()}한 스레드가 아님에 주의.
-     * 다른 게스트와 비동기적으로 호출된다.<br>
-     * 이 메소드를 오버라이드하지 않으면 아무 작업도 하지 않는다.
+     * Invoked only if {@link #run(long)} returned non-null.<br/>
+     * On the main thread. Not the thread of {@link #execute()}.
+     * So it be invoked asynchronously with other guest.<br/>
+     * <br/>
+     * It will do nothing if you don't override this method.
      *
-     * @param result {@link #run(long)}에서 리턴했던 객체.
+     * @param result Return value of {@link #run(long)}.
      */
     @SuppressWarnings("unused")
     public void after(Object result) {
@@ -261,19 +263,17 @@ public abstract class ThreadGuest implements Comparable<ThreadGuest> {
     }
 
     /**
-     * 여러 개의 스레드 게스트를 연계시켜 실행하기 위한 메소드.<br>
-     * 이 객체 혹은 이 객체에 연결된 체인의 수행이 끝난 후에,
-     * 인자로 넘겨주는 게스트를 다시 대기시킨다.
-     * 필요하다면 대기시키기 전에 지연 시간을 줄 수 있다.
+     * Chaining guests and run sequentially.<br/>
+     * nextGuest will be ready at the last of this guest's chain.<br/>
      *
-     * @param delay     이 객체의 {@link #run(long)} 또는 {@link #after(Object)}가 수행된 후,
-     *                  nextGuest 가 대기열에 들어가기 전까지 줄 지연시간.
-     *                  0보다 작으면 0으로 취급된다.
-     * @param nextGuest 이 게스트 다음에 체인으로 연결시키는 게스트.
-     *                  만일 이미 세팅된 체인이 있다면, 체인 구조의 맨 마지막에 추가된다.
-     *                  null 을 주면 이 객체 바로 다음의 체인이 끊긴다.
-     * @return 이 메소드의 작업을 수행한 후, 이 객체를 다시 리턴함.
-     * 인자의 객체를 리턴하는 것이 아님에 주의.
+     * @param delay     after invocation of {@link #run(long)} or {@link #after(Object)} of this guest,
+     *                  delay to execute() nextGuest.
+     *                  Considered as 0 if smaller than 0.
+     * @param nextGuest will be executed after this guest's {@link #run(long)} or {@link #after(Object)}(if run() returns non-null).<br/>
+     *                  If there is a guest already, then added after last guest of chain.
+     *                  If null, exact next reference will be un-set.
+     * @return This instance. not the nextGuest.<br/>
+     * Usage: {@code guest.addChain(0, other1).addChain(0, other2).addChain(0, other3).execute()}
      */
     @SuppressWarnings("unused")
     public ThreadGuest addChain(long delay, ThreadGuest nextGuest) {
@@ -288,11 +288,11 @@ public abstract class ThreadGuest implements Comparable<ThreadGuest> {
 
     /**
      * {@link ThreadGuest#addChain(ChainBlocker, ThreadGuest)}의 인자로 사용된다.
-     * 스레드 체인의 지속을 시간 딜레이 기반이 아닌 이벤트 기반으로 수행하기 위한 매개체.<br>
-     * <br>
+     * 스레드 체인의 지속을 시간 딜레이 기반이 아닌 이벤트 기반으로 수행하기 위한 매개체.<br/>
+     * <br/>
      * {@link #block()}을 호출한 이후 그 blocker 객체를 통과하려고 시도하는 모든 체인은,
-     * 그 blocker 가 관리하는 대기열에 수집된다.<br>
-     * <br>
+     * 그 blocker 가 관리하는 대기열에 수집된다.<br/>
+     * <br/>
      * {@link #unblock()}을 호출하면
      * 그 시점에 해당 blocker 의 대기열에 수집되어 있는 모든 게스트를 다시 진행시킨다.
      * 이 때 실행된 게스트는 대기열에서 빠진다.
@@ -400,11 +400,11 @@ public abstract class ThreadGuest implements Comparable<ThreadGuest> {
 
     /**
      * {@link #addChain(long, ThreadGuest)}과 비슷한데,
-     * 이 메소드를 통해 세팅된 체인은 이벤트 기반으로 연결된다.<br>
-     * <br>
+     * 이 메소드를 통해 세팅된 체인은 이벤트 기반으로 연결된다.<br/>
+     * <br/>
      * 인자로 넘겨주는 {@link ChainBlocker blocker}의 레퍼런스를 들고 있다가,
-     * block 여부를 컨트롤해주면 된다.<br>
-     * <br>
+     * block 여부를 컨트롤해주면 된다.<br/>
+     * <br/>
      * 만일 특정 체인에 대한 unblock 이 실행 시도 전에 수행되는 경우,
      * 그 체인은 blocking 없이 수행될 것이다.
      *
@@ -430,10 +430,9 @@ public abstract class ThreadGuest implements Comparable<ThreadGuest> {
     }
 
     /**
-     * 이 메소드는 일종의 race condition 체크를 하기 위해 존재한다.
-     * true 를 리턴하는 경우, 해당 체인은 주의깊게 사용해야 한다.
+     * This method is to detect circular chaining of ThreadGuest.
      *
-     * @return 이 게스트에 현재 세팅된 체인이, 순환 구조로 진입할 것이 예상되는 경우 true.
+     * @return Be aware of logical infinite loop when it returns true.
      */
     @SuppressWarnings("unused")
     public boolean isCircularChain() {
@@ -448,19 +447,18 @@ public abstract class ThreadGuest implements Comparable<ThreadGuest> {
     }
 
     /**
-     * 이 객체를 {@link ThreadHost}의 작업 대기열에 대기시킨다.
-     * 가능한 때에 {@link ThreadGuest#run(long)}의 수행이 시도된다.
+     * Enqueue this guest in {@link ThreadHost}.
+     * {@link ThreadGuest#run(long)} will be invoked when it can be.
      */
     public void execute() {
         ThreadHost.offer(this);
     }
 
     /**
-     * 이 메소드의 인자를 통해 세팅된 객체는
-     * 스레드 게스트 체인이 수행될 때 다음 게스트로 전달된다.
-     * 만일 다음 게스트가 객체를 가지고 있었다면 덮어써버린다.
+     * The argument will be passed to next guest in ThreadGuest chain.
+     * If the next guest already has object, it will be overwritten when jumping next guest.
      *
-     * @param obj 저장해 둘 객체
+     * @param obj object to carry on.
      * @see #addChain(long, ThreadGuest)
      * @see #getObject()
      */
@@ -469,9 +467,7 @@ public abstract class ThreadGuest implements Comparable<ThreadGuest> {
     }
 
     /**
-     * {@link #setObject(Object)}로 세팅된 객체를 얻는다.
-     *
-     * @return 현재 이 게스트에 세팅되어 있는 객체.
+     * @return Argument of last invocation of {@link #setObject(Object)}.
      * @see #setObject(Object)
      */
     public Object getObject() {

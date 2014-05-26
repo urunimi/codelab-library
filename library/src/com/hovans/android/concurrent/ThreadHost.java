@@ -14,11 +14,11 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 /**
- * worker 스레드의 작업 환경을 제공한다.<br>
- * <br>
+ * worker 스레드의 작업 환경을 제공한다.<br/>
+ * <br/>
  * 환경에는 작업 공간과 대기열이 있다.
- * 대기열에 {@link ThreadGuest}가 들어오면 하나씩 작업 공간에 옮겨져 게스트 내부에 정의된 작업을 수행한다.<br>
- * <br>
+ * 대기열에 {@link ThreadGuest}가 들어오면 하나씩 작업 공간에 옮겨져 게스트 내부에 정의된 작업을 수행한다.<br/>
+ * <br/>
  * 스레드 자원은 singleton 으로 사용된다.
  *
  * @author Arngard
@@ -162,7 +162,7 @@ class ThreadHost {
 
     /**
      * 대기열에 인자의 게스트를 대기시킨다.
-     * 외부에서는 이 메소드 대신 {@link ThreadGuest#execute()}를 사용할 것을 권장함.<br>
+     * 외부에서는 이 메소드 대신 {@link ThreadGuest#execute()}를 사용할 것을 권장함.<br/>
      *
      * @param guest 대기시킬 대상
      */
@@ -203,11 +203,7 @@ class ThreadHost {
      */
     private static void runGuest(final long offerTime, final ThreadGuest guest) {
         final long waitTime = android.os.SystemClock.elapsedRealtime() - offerTime;    // offer 이후 기다린 시각
-        if (waitTime > ThreadConfig.THREAD_WAIT_TIME) {    // 너무 늦은 경우
-            if (guest.waitTimeout(waitTime)) {    // 늦었는데 계속할까? 타임아웃 true 이면
-                return;    // 리턴해버림.
-            }
-        }
+        //TODO: 에러 처리의 방법을 개선할 필요가 있다.
         try {
             final Object runResult = guest.run(waitTime);    // 본문 실행
             handleResult(guest, runResult);
