@@ -24,81 +24,84 @@ import java.util.concurrent.TimeoutException;
  * .execute();    // call() 의 수행을 요청한 후 현재 스레드는 blocking 대기한다.
  * // 수행이 끝나면 val 에 10 이 할당된다.
  * </pre>
- * @author Arngard
  *
  * @param <T> 실행 결과의 클래스
+ * @author Arngard
  */
 public abstract class FutureCaller<T> implements Callable<T> {
 
-	private FutureTask<T> mFuture;
+    private FutureTask<T> mFuture;
 
-	/**
-	 * {@link ThreadHost}의 스레드에서 작업을 수행하고,
-	 * 그 결과를 동기적으로 얻어오기 위한 정의를 생성한다.
-	 */
-	public FutureCaller() {
-		mFuture = new FutureTask<T>(this);
-	}
+    /**
+     * {@link ThreadHost}의 스레드에서 작업을 수행하고,
+     * 그 결과를 동기적으로 얻어오기 위한 정의를 생성한다.
+     */
+    public FutureCaller() {
+        mFuture = new FutureTask<T>(this);
+    }
 
-	private final void executeImple() {
-		new ThreadGuest() {
+    private final void executeImple() {
+        new ThreadGuest() {
 
-			@Override
-			public Object run(long waitTimeMillis) {
-				mFuture.run();
-				return null;
-			}
-		}
-		.execute();
-	}
+            @Override
+            public Object run(long waitTimeMillis) {
+                mFuture.run();
+                return null;
+            }
+        }
+                .execute();
+    }
 
-	/**
-	 * {@link #call()}에 대한 수행을 하고 그 결과를 리턴한다.
-	 * @return 결과. 문제가 발생하면 null.
-	 * @see #execute(long, TimeUnit)
-	 */
-	public T execute() {
-		try {
-			executeImple();
-			return mFuture.get();
-		} catch (CancellationException e) {
-			return null;
-		} catch (InterruptedException e) {
-			return null;
-		} catch (ExecutionException e) {
-			return null;
-		}
-	}
+    /**
+     * {@link #call()}에 대한 수행을 하고 그 결과를 리턴한다.
+     *
+     * @return 결과. 문제가 발생하면 null.
+     * @see #execute(long, TimeUnit)
+     */
+    public T execute() {
+        try {
+            executeImple();
+            return mFuture.get();
+        } catch (CancellationException e) {
+            return null;
+        } catch (InterruptedException e) {
+            return null;
+        } catch (ExecutionException e) {
+            return null;
+        }
+    }
 
-	/**
-	 * {@link #call()}에 대한 수행을 하고 그 결과를 리턴한다.
-	 * @param timeout
-	 * @param unit
-	 * @return 결과. 문제가 발생하면 null.
-	 * @see #execute()
-	 */
-	public T execute(long timeout, TimeUnit unit){
-		try {
-			executeImple();
-			return mFuture.get(timeout, unit);
-		} catch (CancellationException e) {
-			return null;
-		} catch (InterruptedException e) {
-			return null;
-		} catch (ExecutionException e) {
-			return null;
-		} catch (TimeoutException e) {
-			return null;
-		}
-	}
+    /**
+     * {@link #call()}에 대한 수행을 하고 그 결과를 리턴한다.
+     *
+     * @param timeout
+     * @param unit
+     * @return 결과. 문제가 발생하면 null.
+     * @see #execute()
+     */
+    public T execute(long timeout, TimeUnit unit) {
+        try {
+            executeImple();
+            return mFuture.get(timeout, unit);
+        } catch (CancellationException e) {
+            return null;
+        } catch (InterruptedException e) {
+            return null;
+        } catch (ExecutionException e) {
+            return null;
+        } catch (TimeoutException e) {
+            return null;
+        }
+    }
 
-	/**
-	 * execute 를 했을 때 {@link ThreadHost}의 스레드에서 호출될 코드를 정의한다.
-	 * {@link ThreadHost}를 통한 실행은 이 메소드를 직접 호출하는 것이 아님에 주의.
-	 * {@link #execute()} 를 사용하자.
-	 * @see java.util.concurrent.Callable#call()
-	 */
-	@Override
-	public abstract T call() throws Exception;
+    /**
+     * execute 를 했을 때 {@link ThreadHost}의 스레드에서 호출될 코드를 정의한다.
+     * {@link ThreadHost}를 통한 실행은 이 메소드를 직접 호출하는 것이 아님에 주의.
+     * {@link #execute()} 를 사용하자.
+     *
+     * @see java.util.concurrent.Callable#call()
+     */
+    @Override
+    public abstract T call() throws Exception;
 
 }
