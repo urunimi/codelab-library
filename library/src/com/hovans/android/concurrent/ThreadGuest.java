@@ -7,7 +7,7 @@ import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * {@link ThreadHost} 위에서 실행되는 코드를 정의하는 틀.
+ * ThreadHost 가 제공하는 백그라운드 스레드 위에서 실행되는 코드를 정의하는 틀.
  * 비선형 체인을 구성할 때에는 주의깊게 사용해야 함.<br>
  * <br>
  * 아래 예제는 스레드 게스트의 체인을 만들고 실행하며,
