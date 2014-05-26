@@ -20,12 +20,11 @@ import java.util.concurrent.TimeUnit;
  * 대기열에 {@link ThreadGuest}가 들어오면 하나씩 작업 공간에 옮겨져 게스트 내부에 정의된 작업을 수행한다.<br>
  * <br>
  * 스레드 자원은 singleton 으로 사용된다.
- * 이 클래스에 최초로 접근할 때 스레드는 작동을 시작하고 대기 상태에 들어간다.<br>
  *
  * @author Arngard
  * @see ThreadGuest
  */
-public class ThreadHost {
+class ThreadHost {
 
     /*
      * ThreadHost 의 작업 스레드 내부에서 Looper 를 얻을 수 있게 만들어 보려고도 했다.
