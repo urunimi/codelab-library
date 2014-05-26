@@ -30,8 +30,7 @@ import java.util.concurrent.atomic.AtomicLong;
  *     public void run(long waitTimeMillis) {
  *         somethingPerfect(getObject());	// 체인의 앞쪽에서 마지막으로 set 했던 객체를 get.
  *     }
- * })
- * .execute();
+ * }).execute();
  * somethingOther();
  * blocker.unblock();</pre>
  * <p/>
@@ -48,32 +47,32 @@ public abstract class ThreadGuest implements Comparable<ThreadGuest> {
 
 	/* 이하 우선순위 수치는 MS 윈도우의 프로세스 우선순위 값을 참고함. 참고로 윈도우의 System idle 은 0이다. */
     /**
-     * 게스트의 우선순위 프리셋. 가장 높은 우선순위.
+     * Preset of priority. Prior to all another.
      */
     @SuppressWarnings("unused")
     public static final int PRIORITY_GREEDY = 24;
     /**
-     * 게스트의 우선순위 프리셋.
+     * Preset of priority.
      */
     @SuppressWarnings("unused")
     public static final int PRIORITY_HIGH = 13;
     /**
-     * 게스트의 우선순위 프리셋.
+     * Preset of priority.
      */
     @SuppressWarnings("unused")
     public static final int PRIORITY_ABOVE_NORMAL = 10;
     /**
-     * 게스트의 우선순위 프리셋. 기본값이다.
+     * Preset of priority. Default.
      */
     @SuppressWarnings("unused")
     public static final int PRIORITY_NORMAL = 8;
     /**
-     * 게스트의 우선순위 프리셋.
+     * Preset of priority.
      */
     @SuppressWarnings("unused")
     public static final int PRIORITY_BELOW_NORMAL = 6;
     /**
-     * 게스트의 우선순위 프리셋. 가장 낮은 우선순위.
+     * Preset of priority. Later to all another.
      */
     @SuppressWarnings("unused")
     public static final int PRIORITY_IDLE = 4;
@@ -112,7 +111,7 @@ public abstract class ThreadGuest implements Comparable<ThreadGuest> {
     private Object mObjectHolder = null;
 
     /**
-     * 기본 우선순위를 가진 객체를 만든다.
+     * Initiate with default priority.
      *
      * @see ThreadGuest
      * @see #PRIORITY_NORMAL
@@ -122,9 +121,9 @@ public abstract class ThreadGuest implements Comparable<ThreadGuest> {
     }
 
     /**
-     * 지정된 우선순위를 가진 객체를 만든다.
+     * Initiate with defined priority.
      *
-     * @param priority 우선순위. 큰 숫자일수록 우선.
+     * @param priority Bigger number is prior. Recommended to use pre-defined values.
      * @see ThreadGuest
      * @see #PRIORITY_NORMAL
      */
