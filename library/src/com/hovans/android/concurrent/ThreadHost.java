@@ -107,6 +107,9 @@ class ThreadHost {
                     // 여기는 메인스레드이다.
                     LogByCodeLab.v("ThreadHost.resultHandler.handleMessage(): ResultCarrier arrived.");
                     final ResultCarrier carrier = (ResultCarrier) msg.obj;    // 캐리어로 날아온 결과로 guest.after()를 수행해야 한다.
+                    if (carrier == null) {
+                        throw new NullPointerException("Failed to reference ThreadGuest Result");
+                    }
                     carrier.guest.after(carrier.result);
                     processChain(carrier.guest);
                 }
@@ -119,6 +122,9 @@ class ThreadHost {
                     // 여기는 메인스레드이다.
                     LogByCodeLab.v("ThreadHost.nextHandler.handleMessage(): NextCarrier arrived.");
                     final NextCarrier carrier = (NextCarrier) msg.obj;    // 캐리어로 날아온 결과로 다음 체인을 등록해야 한다.
+                    if (carrier == null) {
+                        throw new NullPointerException("Failed to reference ThreadGuest Next");
+                    }
                     carrier.nextGuest.execute();
                 }
             };
@@ -164,11 +170,11 @@ class ThreadHost {
         if (guest == null) {
             throw new NullPointerException("guest is null.");
         }
-        boolean offerResult = false;
+        boolean offerSucceed = false;
         if (getQueue().size() < ThreadConfig.THREAD_BUCKET_MAX_SIZE) {
-            offerResult = getQueue().offer(makeRunnable(android.os.SystemClock.elapsedRealtime(), guest));
+            offerSucceed = getQueue().offer(makeRunnable(android.os.SystemClock.elapsedRealtime(), guest));
         }
-        if (offerResult == false) {    // offer 실패했다면
+        if (!offerSucceed) {    // offer 실패했다면
             guest.offerFail();
         }
     }
