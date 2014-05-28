@@ -85,20 +85,6 @@ class ThreadHost {
     private ThreadHost() {
     }
 
-    @SuppressWarnings("unused")
-    public static ThreadPoolExecutor getExecutor() {
-        return executor;
-    }
-
-    /**
-     * 대기열을 얻는다.
-     *
-     * @return 스레드 작업의 대기열 객체.
-     */
-    public static BlockingQueue<Runnable> getQueue() {
-        return queue;
-    }
-
     synchronized private static void makeHandlers() {
         if (resultHandler == null) {
             resultHandler = new Handler(Looper.getMainLooper()) {
@@ -171,8 +157,8 @@ class ThreadHost {
             throw new NullPointerException("guest is null.");
         }
         boolean offerSucceed = false;
-        if (getQueue().size() < ThreadConfig.THREAD_BUCKET_MAX_SIZE) {
-            offerSucceed = getQueue().offer(makeRunnable(android.os.SystemClock.elapsedRealtime(), guest));
+        if (queue.size() < ThreadConfig.THREAD_BUCKET_MAX_SIZE) {
+            offerSucceed = queue.offer(makeRunnable(android.os.SystemClock.elapsedRealtime(), guest));
         }
         if (!offerSucceed) {    // offer 실패했다면
             guest.offerFail();
