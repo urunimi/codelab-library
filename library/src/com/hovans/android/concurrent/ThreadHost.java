@@ -24,7 +24,7 @@ import java.util.concurrent.TimeUnit;
  * @author Arngard
  * @see ThreadGuest
  */
-class ThreadHost {
+public class ThreadHost {
 
     /*
      * ThreadHost 의 작업 스레드 내부에서 Looper 를 얻을 수 있게 만들어 보려고도 했다.
