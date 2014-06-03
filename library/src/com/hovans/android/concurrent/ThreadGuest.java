@@ -7,7 +7,7 @@ import java.util.concurrent.atomic.AtomicLong;
 /**
  * Contents of method run() will be executed on background thread of ThreadHost.
  * And It will get back to main thread with after().
- * Offering interface of chaining several ThreadGuests, by<br/>
+ * Offering interface of chaining several ThreadGuests, by addChain().<br/>
  * <br/>
  * Be aware of potential deadlock.<br/>
  * <br/>
