@@ -24,7 +24,7 @@ import java.util.concurrent.TimeUnit;
  * @author Arngard
  * @see ThreadGuest
  */
-public class ThreadHost {
+class ThreadHost {
 
     /*
      * ThreadHost 의 작업 스레드 내부에서 Looper 를 얻을 수 있게 만들어 보려고도 했다.
@@ -83,20 +83,6 @@ public class ThreadHost {
     }
 
     private ThreadHost() {
-    }
-
-    @SuppressWarnings("unused")
-    public static ThreadPoolExecutor getExecutor() {
-        return executor;
-    }
-
-    /**
-     * 대기열을 얻는다.
-     *
-     * @return 스레드 작업의 대기열 객체.
-     */
-    public static BlockingQueue<Runnable> getQueue() {
-        return queue;
     }
 
     synchronized private static void makeHandlers() {
@@ -171,8 +157,8 @@ public class ThreadHost {
             throw new NullPointerException("guest is null.");
         }
         boolean offerSucceed = false;
-        if (getQueue().size() < ThreadConfig.THREAD_BUCKET_MAX_SIZE) {
-            offerSucceed = getQueue().offer(makeRunnable(android.os.SystemClock.elapsedRealtime(), guest));
+        if (queue.size() < ThreadConfig.THREAD_BUCKET_MAX_SIZE) {
+            offerSucceed = queue.offer(makeRunnable(android.os.SystemClock.elapsedRealtime(), guest));
         }
         if (!offerSucceed) {    // offer 실패했다면
             guest.offerFail();
