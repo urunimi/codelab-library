@@ -2,10 +2,6 @@ buildscript {
     repositories {
         mavenCentral()
     }
-
-    dependencies {
-        classpath 'com.android.tools.build:gradle:0.+'
-    }
 }
 
 def isReleaseBuild() {
@@ -19,6 +15,13 @@ allprojects {
     repositories {
         mavenCentral()
     }
+
+    ext.androidMinSDKVersion = 8
+    ext.androidTargetSDKVersion = 19
 }
 
-apply plugin: 'android-reporting'
+task wrapper(type: Wrapper) {
+    gradleVersion = '1.10'
+}
+
+//apply plugin: 'android-reporting'

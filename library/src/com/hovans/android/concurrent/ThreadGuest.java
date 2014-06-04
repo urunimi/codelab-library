@@ -7,7 +7,7 @@ import java.util.concurrent.atomic.AtomicLong;
 /**
  * Contents of method run() will be executed on background thread of ThreadHost.
  * And It will get back to main thread with after().
- * Offering interface of chaining several ThreadGuests, by<br/>
+ * Offering interface of chaining several ThreadGuests, by addChain().<br/>
  * <br/>
  * Be aware of potential deadlock.<br/>
  * <br/>
@@ -302,7 +302,7 @@ public abstract class ThreadGuest implements Comparable<ThreadGuest> {
      *
      * @author Arngard
      */
-    public static final class ChainBlocker {
+    public static class ChainBlocker {
 
         private ArrayList<ThreadGuest> waitingGuests = new ArrayList<ThreadGuest>();
         private boolean isBlocking = true;
@@ -322,7 +322,7 @@ public abstract class ThreadGuest implements Comparable<ThreadGuest> {
          * @return If the target is waiting in this blocker's queue.
          */
         @SuppressWarnings("unused")
-        synchronized final boolean isWaiting(final ThreadGuest guest) {
+        synchronized public final boolean isWaiting(final ThreadGuest guest) {
             return waitingGuests.contains(guest);
         }
 
@@ -338,7 +338,7 @@ public abstract class ThreadGuest implements Comparable<ThreadGuest> {
         /**
          * @return True if it is blocking now.
          */
-        synchronized public boolean isBlocking() {
+        synchronized public final boolean isBlocking() {
             return isBlocking;
         }
 

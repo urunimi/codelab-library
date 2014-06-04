@@ -1,8 +1,33 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:0.9.+'
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
 apply plugin: 'android-library'
 
+tasks.withType(Compile) {
+    options.encoding = 'UTF-8'
+}
+
 android {
-    compileSdkVersion Integer.parseInt(project.ANDROID_BUILD_SDK_VERSION)
-    buildToolsVersion project.ANDROID_BUILD_TOOLS_VERSION
+    compileSdkVersion 19
+    buildToolsVersion "19.1"
+
+    defaultConfig {
+        minSdkVersion 8
+        targetSdkVersion 19
+        versionCode 1
+        versionName "1.0"
+    }
+
     sourceSets {
         main {
             manifest.srcFile 'AndroidManifest.xml'
@@ -18,5 +43,10 @@ android {
         abortOnError false
     }
 }
+
+sourceCompatibility = 1.6
+targetCompatibility = 1.6
+
+description = 'library'
 
 //apply from: 'https://raw.githubusercontent.com/urunimi/gradle-mvn-push/master/gradle-mvn-push.gradle'

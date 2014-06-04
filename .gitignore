@@ -1,5 +1,28 @@
-build/
 .DS_Store
+*.log
+
+build
+bin
+gen
+*.swp
+out
+workspace.xml
+*.bak
+
+## eclipse project
+.settings
+.classpath
+.project
+
+## IntelliJ project
 *.iml
+*.ipr
+*.iws
 .idea/
-.gradle/
+out/
+
+## Gradle
+.gradle
+
+## Android Studio
+local.properties
