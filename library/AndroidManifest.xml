@@ -7,5 +7,5 @@
     <uses-sdk
         android:minSdkVersion="8"
         android:targetSdkVersion="19" />
-    <application android:label="Codelab Library" />
+    <application />
 </manifest>
