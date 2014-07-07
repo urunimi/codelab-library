@@ -8,6 +8,8 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 
+import com.hovans.android.log.LogByCodeLab;
+
 /**
  * 인텐트 송수신에서 도움이 될 만한 메소드들
  * 
@@ -78,13 +80,18 @@ public class IntentHelper {
 	 * @return True if the package is exists.
 	 */
 	public static boolean isPackageExists(Context context, String packageName) {
-		List<ApplicationInfo> packages;
-		PackageManager pm = context.getPackageManager();
-		packages = pm.getInstalledApplications(0);
-		for (ApplicationInfo packageInfo : packages) {
-			if (packageInfo.packageName.equals(packageName))
-				return true;
+		try {
+			List<ApplicationInfo> packages;
+			PackageManager pm = context.getPackageManager();
+			packages = pm.getInstalledApplications(0);
+			for (ApplicationInfo packageInfo : packages) {
+				if (packageInfo.packageName.equals(packageName))
+					return true;
+			}
+		} catch(Exception e) {
+			LogByCodeLab.e(e);
 		}
+
 		return false;
 	}
 }
