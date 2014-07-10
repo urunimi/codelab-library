@@ -160,10 +160,10 @@
 	<color name="trans_black">#88000000</color>
 	
 	<!-- android design guides -->
-	<color name="android_blue">#FF33B5E5</color>
-	<color name="android_yellow">#FFFFBB33</color>
-	<color name="android_green">#FF99CC00</color>
-	<color name="android_red">#FFFF4444</color>
-	<color name="android_purple">#FFAA66CC</color>
-	<color name="android_sky_blue">#FF55D7FF</color>
+	<color name="holo_blue">#33B5E5</color>
+	<color name="holo_yellow">#FFBB33</color>
+	<color name="holo_green">#99CC00</color>
+	<color name="holo_red">#FF4444</color>
+	<color name="holo_purple">#AA66CC</color>
+	<color name="holo_sky_blue">#55D7FF</color>
 </resources>

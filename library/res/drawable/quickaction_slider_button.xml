@@ -3,12 +3,12 @@
 	android:dither="true">
 	<item android:state_pressed="true">
 		<shape>
-			<gradient android:angle="315" android:startColor="@color/yellow" android:endColor="@color/android_yellow"/>
+			<gradient android:angle="315" android:startColor="@color/yellow" android:endColor="@color/holo_yellow"/>
 		</shape>
 	</item>
 	<item android:state_focused="true">
 		<shape>
-			<gradient android:angle="315" android:startColor="@color/yellow" android:endColor="@color/android_yellow"/>
+			<gradient android:angle="315" android:startColor="@color/yellow" android:endColor="@color/holo_yellow"/>
 		</shape>
 	</item>
 	<item>
