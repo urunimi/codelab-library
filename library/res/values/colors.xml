@@ -214,6 +214,21 @@
     <color name="l_teal_A400">#1de9b6</color>
     <color name="l_teal_A700">#00bfa5</color>
 
+    <color name="l_light_green_50">#f1f8e9</color>
+    <color name="l_light_green_100">#dcedc8</color>
+    <color name="l_light_green_200">#c5e1a5</color>
+    <color name="l_light_green_300">#aed581</color>
+    <color name="l_light_green_400">#9ccc65</color>
+    <color name="l_light_green_500">#8bc34a</color>
+    <color name="l_light_green_600">#7cb342</color>
+    <color name="l_light_green_700">#689f38</color>
+    <color name="l_light_green_800">#558b2f</color>
+    <color name="l_light_green_900">#33691e</color>
+    <color name="l_light_green_A100">#ccff90</color>
+    <color name="l_light_green_A200">#b2ff59</color>
+    <color name="l_light_green_A400">#76ff03</color>
+    <color name="l_light_green_A700">#64dd17</color>
+
     <color name="l_amber_50">#fff8e1</color>
     <color name="l_amber_100">#ffecb3</color>
     <color name="l_amber_200">#ffe082</color>
