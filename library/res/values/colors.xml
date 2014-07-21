@@ -168,18 +168,79 @@
 	<color name="holo_sky_blue">#55D7FF</color>
 
 
-	<color nmae="l_indigo_50">#e8eaf6</color>
-	<color nmae="l_indigo_100">#c5cae9</color>
-	<color nmae="l_indigo_200">#9fa8da</color>
-	<color nmae="l_indigo_300">#7986cb</color>
-	<color nmae="l_indigo_400">#5c6bc0</color>
-	<color nmae="l_indigo_500">#3f51b5</color>
-	<color nmae="l_indigo_600">#3949ab</color>
-	<color nmae="l_indigo_700">#303f9f</color>
-	<color nmae="l_indigo_800">#283593</color>
-	<color nmae="l_indigo_900">#1a237e</color>
-	<color nmae="l_indigo_A100">#8c9eff</color>
-	<color nmae="l_indigo_A200">#536dfe</color>
-	<color nmae="l_indigo_A400">#3d5afe</color>
-	<color nmae="l_indigo_A700">#304ffe</color>
+	<color name="l_indigo_50">#e8eaf6</color>
+	<color name="l_indigo_100">#c5cae9</color>
+	<color name="l_indigo_200">#9fa8da</color>
+	<color name="l_indigo_300">#7986cb</color>
+	<color name="l_indigo_400">#5c6bc0</color>
+	<color name="l_indigo_500">#3f51b5</color>
+	<color name="l_indigo_600">#3949ab</color>
+	<color name="l_indigo_700">#303f9f</color>
+	<color name="l_indigo_800">#283593</color>
+	<color name="l_indigo_900">#1a237e</color>
+	<color name="l_indigo_A100">#8c9eff</color>
+	<color name="l_indigo_A200">#536dfe</color>
+	<color name="l_indigo_A400">#3d5afe</color>
+	<color name="l_indigo_A700">#304ffe</color>
+
+
+    <color name="l_red_50">#fde0dc</color>
+    <color name="l_red_100">#f9bdbb</color>
+    <color name="l_red_200">#f69988</color>
+    <color name="l_red_300">#f36c60</color>
+    <color name="l_red_400">#e84e40</color>
+    <color name="l_red_500">#e51c23</color>
+    <color name="l_red_600">#dd191d</color>
+    <color name="l_red_700">#d01716</color>
+    <color name="l_red_800">#c41411</color>
+    <color name="l_red_900">#b0120a</color>
+    <color name="l_red_A100">#ff7997</color>
+    <color name="l_red_A200">#ff5177</color>
+    <color name="l_red_A400">#ff2d6f</color>
+    <color name="l_red_A700">#e00032</color>
+
+    <color name="l_teal_50">#e0f2f1</color>
+    <color name="l_teal_100">#b2dfdb</color>
+    <color name="l_teal_200">#80cbc4</color>
+    <color name="l_teal_300">#4db6ac</color>
+    <color name="l_teal_400">#26a69a</color>
+    <color name="l_teal_500">#009688</color>
+    <color name="l_teal_600">#00897b</color>
+    <color name="l_teal_700">#00796b</color>
+    <color name="l_teal_800">#00695c</color>
+    <color name="l_teal_900">#004d40</color>
+    <color name="l_teal_A100">#a7ffeb</color>
+    <color name="l_teal_A200">#64ffda</color>
+    <color name="l_teal_A400">#1de9b6</color>
+    <color name="l_teal_A700">#00bfa5</color>
+
+    <color name="l_amber_50">#fff8e1</color>
+    <color name="l_amber_100">#ffecb3</color>
+    <color name="l_amber_200">#ffe082</color>
+    <color name="l_amber_300">#ffd54f</color>
+    <color name="l_amber_400">#ffca28</color>
+    <color name="l_amber_500">#ffc107</color>
+    <color name="l_amber_600">#ffb300</color>
+    <color name="l_amber_700">#ffa000</color>
+    <color name="l_amber_800">#ff8f00</color>
+    <color name="l_amber_900">#ff6f00</color>
+    <color name="l_amber_A100">#ffe57f</color>
+    <color name="l_amber_A200">#ffd740</color>
+    <color name="l_amber_A400">#ffc400</color>
+    <color name="l_amber_A700">#ffab00</color>
+
+    <color name="l_blue_50">#e7e9fd</color>
+    <color name="l_blue_100">#d0d9ff</color>
+    <color name="l_blue_200">#afbfff</color>
+    <color name="l_blue_300">#91a7ff</color>
+    <color name="l_blue_400">#738ffe</color>
+    <color name="l_blue_500">#5677fc</color>
+    <color name="l_blue_600">#4e6cef</color>
+    <color name="l_blue_700">#455ede</color>
+    <color name="l_blue_800">#3b50ce</color>
+    <color name="l_blue_900">#2a36b1</color>
+    <color name="l_blue_A100">#a6baff</color>
+    <color name="l_blue_A200">#6889ff</color>
+    <color name="l_blue_A400">#4d73ff</color>
+    <color name="l_blue_A700">#4d69ff</color>
 </resources>
