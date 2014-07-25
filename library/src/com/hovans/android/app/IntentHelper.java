@@ -20,8 +20,8 @@ public class IntentHelper {
 
 	/**
 	 * 인자의 인텐트를 수신할 수 있는 모든 컴포넌트들을 검색한다.
-	 * @param context
-	 * @param intent
+	 * @param context The application's environment.
+	 * @param intent The Intent to check for availability.
 	 * @return 인자의 인텐트를 수신 가능한 요소들의 목록
 	 */
 	private static final List<ResolveInfo> queryAll(Context context, Intent intent) {
