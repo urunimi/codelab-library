@@ -2,34 +2,38 @@ package com.hovans.android.global;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.preference.PreferenceManager;
 import com.hovans.android.log.LogByCodeLab;
 import com.hovans.android.util.SimpleCrypto;
 
 /**
- * BasePreferences.java
+ * GlobalPreferences.java
  * <p/>
  * Created by Hovan on 8/29/14.
  */
-public class BasePreferences {
+public class GlobalPreferences {
+
+	public static final String KEY_VERSION_CODE = "KEY_VERSION_CODE";
 
 	/** Multi Threading에 적합하도록 volatile로 선언 */
-	private volatile static SharedPreferences sPreferenceInstance = null;
+	protected volatile SharedPreferences preferenceInstance = null;
 
-	private static String sPackageName;
+	final static Context appContext = GlobalApplication.getContext();
+	final static String packageName = appContext.getPackageName();
 
+	protected static GlobalPreferences globalPreferences;
 	/**
 	 * Preferences 객체를 가져가기 윈한 함수<br/>
 	 * Singleton을 적용한다.
 	 * @return
 	 */
 	public static SharedPreferences getInstance() {
-		final Context appContext = GlobalApplication.getContext();
-		if(sPreferenceInstance == null) {
-			sPreferenceInstance = PreferenceManager.getDefaultSharedPreferences(appContext);
-			sPackageName = appContext.getPackageName();
+		if(globalPreferences == null) {
+			globalPreferences = new GlobalPreferences();
 		}
-		return sPreferenceInstance;
+		return globalPreferences.preferenceInstance;
 	}
 
 	public synchronized static long getLong(String key) {
@@ -70,7 +74,7 @@ public class BasePreferences {
 
 		try {
 			if(encryptString != null) {
-				encryptString = SimpleCrypto.decrypt(sPackageName, encryptString);
+				encryptString = SimpleCrypto.decrypt(globalPreferences.packageName, encryptString);
 			}
 		} catch(Exception e) {
 			LogByCodeLab.e(e, "key=" + key + ", encryptString=" + encryptString);
@@ -84,7 +88,7 @@ public class BasePreferences {
 	public synchronized static boolean setStringEncrypt(String key, String value) {
 		try {
 			if(value != null) {
-				value = SimpleCrypto.encrypt(sPackageName, value);
+				value = SimpleCrypto.encrypt(globalPreferences.packageName, value);
 			}
 			getInstance().edit().putString(key, value).commit();
 			return true;
@@ -96,5 +100,32 @@ public class BasePreferences {
 
 	public static SharedPreferences getSharedPreferences(String fileName) {
 		return GlobalApplication.getContext().getSharedPreferences(fileName, Context.MODE_PRIVATE);
+	}
+
+	protected GlobalPreferences() {
+		preferenceInstance = PreferenceManager.getDefaultSharedPreferences(appContext);
+	}
+
+	static boolean alreadyChecked = false;
+
+	protected static boolean refreshVersionCode() {
+		if(alreadyChecked == true) return false;
+		alreadyChecked = true;
+
+		boolean isUpdated = false;
+		try {
+			PackageInfo packageInfo = appContext.getPackageManager().getPackageInfo(appContext.getPackageName(), 0);
+
+			int newVersionCode = packageInfo.versionCode;
+			int oldVersionCode = getInt(KEY_VERSION_CODE, 0);
+
+			if(newVersionCode > oldVersionCode) {
+				edit().putInt(KEY_VERSION_CODE, newVersionCode).apply();
+				isUpdated = true;
+			}
+		} catch (PackageManager.NameNotFoundException e) {
+			LogByCodeLab.e(e);
+		}
+		return isUpdated;
 	}
 }
