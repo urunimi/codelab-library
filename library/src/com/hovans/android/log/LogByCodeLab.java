@@ -53,22 +53,31 @@ public class LogByCodeLab {
 		}
 	}
 
-	public static void i(String message) {
+	public static void i(String tag, String message) {
 		if (d()) {
 			String text = formatLog(message);
-			Log.i(DebugConfig.LOG_TAG, text);
+			Log.i(tag, text);
+			writeLogToFile(text);
+		}
+	}
+	public static void i(String message) {
+		i(DebugConfig.LOG_TAG, message);
+	}
+
+
+	public static void w(String tag, String message) {
+		if (d()) {
+			String text = formatLog(message);
+			Log.w(tag, text);
 			writeLogToFile(text);
 		}
 	}
 
 	public static void w(String message) {
-		if (d()) {
-			String text = formatLog(message);
-			Log.w(DebugConfig.LOG_TAG, text);
-			writeLogToFile(text);
-		}
+		w(DebugConfig.LOG_TAG, message);
 	}
-	
+
+
 	public static void w(Throwable e) {
 		w(getStringFromThrowable(e));
 	}
