@@ -68,6 +68,10 @@ public class GlobalPreferences {
 		return getInstance().edit();
 	}
 
+//	public synchronized static String getStringEncrypt(String key) {
+//		return getStringEncrypt(globalPreferences.packageName, key);
+//	}
+
 	public synchronized static String getStringEncrypt(String seed, String key) {
 		String encryptString = getInstance().getString(key, null);
 
@@ -84,6 +88,12 @@ public class GlobalPreferences {
 
 		return encryptString;
 	}
+
+
+//	public synchronized static boolean setStringEncrypt(String key, String value) {
+//		return setStringEncrypt(globalPreferences.packageName, key, value);
+//	}
+
 
 	public synchronized static boolean setStringEncrypt(String seed, String key, String value) {
 		try {
