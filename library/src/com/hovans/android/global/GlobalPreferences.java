@@ -68,27 +68,27 @@ public class GlobalPreferences {
 		return getInstance().edit();
 	}
 
-
-	public synchronized static String getStringEncrypt(String key) {
+	public synchronized static String getStringEncrypt(String seed, String key) {
 		String encryptString = getInstance().getString(key, null);
 
 		try {
 			if(encryptString != null) {
-				encryptString = SimpleCrypto.decrypt(globalPreferences.packageName, encryptString);
+				LogByCodeLab.d("seed=" + seed + ", key=" + key + ", encryptString=" + encryptString);
+				encryptString = SimpleCrypto.decrypt(seed, encryptString);
 			}
 		} catch(Exception e) {
 			LogByCodeLab.e(e, "key=" + key + ", encryptString=" + encryptString);
-			edit().putString(key, null).commit();
+//			edit().putString(key, null).commit();
 			encryptString = null;
 		}
 
 		return encryptString;
 	}
 
-	public synchronized static boolean setStringEncrypt(String key, String value) {
+	public synchronized static boolean setStringEncrypt(String seed, String key, String value) {
 		try {
 			if(value != null) {
-				value = SimpleCrypto.encrypt(globalPreferences.packageName, value);
+				value = SimpleCrypto.encrypt(seed, value);
 			}
 			getInstance().edit().putString(key, value).commit();
 			return true;
