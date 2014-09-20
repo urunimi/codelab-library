@@ -73,11 +73,11 @@ public class GlobalPreferences {
 
 		try {
 			if(encryptString != null) {
-				LogByCodeLab.d("seed=" + seed + ", key=" + key + ", encryptString=" + encryptString);
+				if(LogByCodeLab.d()) LogByCodeLab.d("seed=" + seed + ", key=" + key + ", encryptString=" + encryptString);
 				encryptString = SimpleCrypto.decrypt(seed, encryptString);
 			}
 		} catch(Exception e) {
-			LogByCodeLab.e(e, "key=" + key + ", encryptString=" + encryptString);
+			if(LogByCodeLab.d()) LogByCodeLab.e(e, "key=" + key + ", encryptString=" + encryptString);
 //			edit().putString(key, null).commit();
 			encryptString = null;
 		}
