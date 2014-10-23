@@ -3,6 +3,7 @@ package com.hovans.android.util;
 import android.app.AlarmManager;
 import android.app.NotificationManager;
 import android.content.Context;
+import android.os.Build;
 import android.os.PowerManager;
 import android.telephony.TelephonyManager;
 import android.view.WindowManager;
@@ -59,5 +60,15 @@ public class SystemService {
 			sWindowManager = new WeakReference<WindowManager>((WindowManager) GlobalApplication.getContext().getSystemService(Context.WINDOW_SERVICE));
 		}
 		return sWindowManager.get();
+	}
+
+	public static void setClipboardText(String text) {
+		if(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+			android.text.ClipboardManager clipboard = (android.text.ClipboardManager) GlobalApplication.getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+			clipboard.setText(text);
+		} else {
+			android.content.ClipboardManager clipboardManager = (android.content.ClipboardManager) GlobalApplication.getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+			clipboardManager.setText(text);
+		}
 	}
 }
