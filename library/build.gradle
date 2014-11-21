@@ -8,7 +8,7 @@ repositories {
     mavenCentral()
 }
 
-apply plugin: 'android-library'
+apply plugin: 'com.android.library'
 
 tasks.withType(Compile) {
     options.encoding = 'UTF-8'
