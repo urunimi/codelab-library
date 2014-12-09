@@ -10,9 +10,9 @@ repositories {
 
 apply plugin: 'com.android.library'
 
-tasks.withType(Compile) {
-    options.encoding = 'UTF-8'
-}
+//tasks.withType(Compile) {
+//    options.encoding = 'UTF-8'
+//}
 
 android {
     compileSdkVersion 19
