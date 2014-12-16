@@ -1,5 +1,6 @@
 package com.hovans.android.util;
 
+import android.app.ActivityManager;
 import android.app.AlarmManager;
 import android.app.NotificationManager;
 import android.content.Context;
@@ -52,6 +53,14 @@ public class SystemService {
 			sPowerManager = new WeakReference<PowerManager>((PowerManager) GlobalApplication.getContext().getSystemService(Context.POWER_SERVICE));
 		}
 		return sPowerManager.get();
+	}
+
+	static WeakReference<ActivityManager> sActivityManager;
+	public static ActivityManager getActivityManager() {
+		if(sActivityManager == null || sActivityManager.get() == null) {
+			sActivityManager = new WeakReference<ActivityManager>((ActivityManager) GlobalApplication.getContext().getSystemService(Context.ACTIVITY_SERVICE));
+		}
+		return sActivityManager.get();
 	}
 
 	static WeakReference<WindowManager> sWindowManager;
