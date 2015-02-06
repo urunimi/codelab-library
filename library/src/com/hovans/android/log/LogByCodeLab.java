@@ -1,19 +1,15 @@
 package com.hovans.android.log;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import android.os.Handler;
+import android.os.HandlerThread;
+import android.util.Log;
+import com.hovans.android.constant.DebugConfig;
+import com.hovans.android.global.GlobalApplication;
+
+import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-
-import android.util.Log;
-
-import com.hovans.android.concurrent.ThreadGuest;
-import com.hovans.android.constant.DebugConfig;
-import com.hovans.android.global.GlobalApplication;
 
 /**
  * 정형화된 포맷으로 로그캣 출력을 하기 위한 래핑 메소드들.
@@ -125,22 +121,28 @@ public class LogByCodeLab {
 
 			final String messageWithTime = new SimpleDateFormat("yy-MM-dd HH:mm:ss.SSS").format(today) + message;
 
-			new ThreadGuest(ThreadGuest.PRIORITY_IDLE) {
+			if(handlerThread == null) {
+				handlerThread = new HandlerThread(DebugConfig.LOG_TAG);
+				handler = new Handler(handlerThread.getLooper());
+				handlerThread.start();
+			}
 
+			handler.post(new Runnable() {
 				@Override
-				public Object run(/*Handler initHandler, */long waitTimeMillis) {
+				public void run() {
 					try {
 						FileOutputStream fos = new FileOutputStream(logFile, true);
 						fos.write((messageWithTime + "\n").getBytes());
 						fos.close();
-						
+
 					} catch (IOException ioe) {
 						Log.e(DebugConfig.LOG_TAG, "Could not write filen", ioe);
 					}
-					return null;
 				}
-				
-			}.execute();
+			});
 		}
 	}
+
+	static HandlerThread handlerThread;
+	static Handler handler;
 }
