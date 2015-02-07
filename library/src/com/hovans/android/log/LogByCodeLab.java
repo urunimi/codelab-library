@@ -53,7 +53,7 @@ public class LogByCodeLab {
 		if (d()) {
 			String text = formatLog(message);
 			Log.i(tag, text);
-//			writeLogToFile(text);
+			writeLogToFile(text);
 		}
 	}
 	public static void i(String message) {
@@ -102,45 +102,45 @@ public class LogByCodeLab {
 	}
 	
 	static void writeLogToFile(String message) {
-//		File root = new File(GlobalApplication.getContext().getExternalCacheDir(), DebugConfig.LOG_FOLDER);
-//		if(!root.canWrite())root.mkdirs();
-//		if (root.canWrite()) {
-//			Date today = new Date();
-//			Calendar calendar = Calendar.getInstance();
-//			calendar.setTime(today);
-//			calendar.add(Calendar.DATE, -2);
-//
-//			final File oldFile = new File(root, new SimpleDateFormat("yyyy-MM-dd").format(calendar.getTime())+ ".txt");
-//			if(oldFile.exists()) {
-//				oldFile.delete();
-//			}
-//
-//			calendar.setTime(today);
-//
-//			final File logFile = new File(root, new SimpleDateFormat("yyyy-MM-dd").format(calendar.getTime())+ ".txt");
-//
-//			final String messageWithTime = new SimpleDateFormat("yy-MM-dd HH:mm:ss.SSS").format(today) + message;
-//
-//			if(handlerThread == null) {
-//				handlerThread = new HandlerThread(DebugConfig.LOG_TAG);
-//				handler = new Handler(handlerThread.getLooper());
-//				handlerThread.start();
-//			}
-//
-//			handler.post(new Runnable() {
-//				@Override
-//				public void run() {
-//					try {
-//						FileOutputStream fos = new FileOutputStream(logFile, true);
-//						fos.write((messageWithTime + "\n").getBytes());
-//						fos.close();
-//
-//					} catch (IOException ioe) {
-//						Log.e(DebugConfig.LOG_TAG, "Could not write filen", ioe);
-//					}
-//				}
-//			});
-//		}
+		File root = new File(GlobalApplication.getContext().getExternalCacheDir(), DebugConfig.LOG_FOLDER);
+		if(!root.canWrite())root.mkdirs();
+		if (root.canWrite()) {
+			Date today = new Date();
+			Calendar calendar = Calendar.getInstance();
+			calendar.setTime(today);
+			calendar.add(Calendar.DATE, -2);
+
+			final File oldFile = new File(root, new SimpleDateFormat("yyyy-MM-dd").format(calendar.getTime())+ ".txt");
+			if(oldFile.exists()) {
+				oldFile.delete();
+			}
+
+			calendar.setTime(today);
+
+			final File logFile = new File(root, new SimpleDateFormat("yyyy-MM-dd").format(calendar.getTime())+ ".txt");
+
+			final String messageWithTime = new SimpleDateFormat("yy-MM-dd HH:mm:ss.SSS").format(today) + message;
+
+			if(handlerThread == null) {
+				handlerThread = new HandlerThread(DebugConfig.LOG_TAG);
+				handlerThread.start();
+				handler = new Handler(handlerThread.getLooper());
+			}
+
+			handler.post(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						FileOutputStream fos = new FileOutputStream(logFile, true);
+						fos.write((messageWithTime + "\n").getBytes());
+						fos.close();
+
+					} catch (IOException ioe) {
+						Log.e(DebugConfig.LOG_TAG, "Could not write filen", ioe);
+					}
+				}
+			});
+		}
 	}
 
 	static HandlerThread handlerThread;
