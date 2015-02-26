@@ -15,8 +15,8 @@ apply plugin: 'com.android.library'
 //}
 
 android {
-    compileSdkVersion 19
-    buildToolsVersion "19.1"
+    compileSdkVersion 21
+    buildToolsVersion "21.1.2"
 
     defaultConfig {
         minSdkVersion 9
@@ -40,9 +40,6 @@ android {
         abortOnError false
     }
 }
-
-sourceCompatibility = 1.6
-targetCompatibility = 1.6
 
 description = 'library'
 
