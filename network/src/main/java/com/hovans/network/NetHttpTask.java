@@ -60,7 +60,11 @@ public class NetHttpTask {
 			@Override
 			public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
 				closeDialogIfItNeeds();
-				callback.onFail(statusCode, gson.fromJson(responseString, NetHttpResult.class));
+				try {
+					callback.onFail(statusCode, gson.fromJson(responseString, NetHttpResult.class));
+				} catch (Exception e) {
+					callback.onFail(statusCode, null);
+				}
 			}
 
 			@Override
@@ -77,7 +81,11 @@ public class NetHttpTask {
 //					httpResult.message = jsonObject.getString("message");
 //					httpResult.result = ;
 					closeDialogIfItNeeds();
-					callback.onSuccess(statusCode, jsonObject.getString("result"));
+					String result = null;
+					if(jsonObject.has("result")) {
+						result = jsonObject.getString("result");
+					}
+					callback.onSuccess(statusCode, result);
 				} catch (JSONException e) {
 					e.printStackTrace();
 				}
