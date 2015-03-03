@@ -9,6 +9,7 @@ import org.json.JSONObject;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.os.Looper;
 
 import com.google.gson.Gson;
 import com.loopj.android.http.AsyncHttpClient;
@@ -32,6 +33,7 @@ public class NetHttpTask {
 	ProgressDialog progressDialog;
 
 	public void post(final ResponseHandler callback) {
+
 		AsyncHttpClient httpClient = synchronousMode? new SyncHttpClient() : new AsyncHttpClient();
 
 		RequestParams requestParams = new RequestParams();
@@ -117,7 +119,11 @@ public class NetHttpTask {
 		this.waitString = waitString;
 		this.url = url;
 		this.params = params;
-		this.synchronousMode = syncronous;
+
+		if(Looper.myLooper() == null) synchronousMode = true;
+		else {
+			this.synchronousMode = syncronous;
+		}
 		this.activityForProgress = activityForProgress;
 	}
 
