@@ -36,6 +36,10 @@ public class GlobalPreferences {
 		return globalPreferences.preferenceInstance;
 	}
 
+	public static SharedPreferences getInstance(String fileName) {
+		return appContext.getSharedPreferences(fileName, Context.MODE_PRIVATE);
+	}
+
 	public synchronized static long getLong(String key) {
 		return getLong(key, -1);
 	}
