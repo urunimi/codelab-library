@@ -37,7 +37,11 @@ public class GlobalPreferences {
 	}
 
 	public synchronized static long getLong(String key) {
-		return getInstance().getLong(key, -1);
+		return getLong(key, -1);
+	}
+
+	public synchronized static long getLong(String key, long defaultValue) {
+		return getInstance().getLong(key, defaultValue);
 	}
 
 	public synchronized static int getIntFromString(String key, int defaultValue) {
