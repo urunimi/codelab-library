@@ -45,7 +45,14 @@ public class GlobalPreferences {
 	}
 
 	public synchronized static long getLong(String key, long defaultValue) {
-		return getInstance().getLong(key, defaultValue);
+		long value;
+		try {
+			value = getInstance().getLong(key, defaultValue);
+		} catch (Throwable e) {
+			value = defaultValue;
+			getInstance().edit().remove(key).apply();
+		}
+		return value;
 	}
 
 	public synchronized static int getIntFromString(String key, int defaultValue) {
@@ -53,7 +60,14 @@ public class GlobalPreferences {
 	}
 
 	public synchronized static int getInt(String key, int defaultValue) {
-		return getInstance().getInt(key, defaultValue);
+		int value;
+		try {
+			value = getInstance().getInt(key, defaultValue);
+		} catch (Throwable e) {
+			value = defaultValue;
+			getInstance().edit().remove(key).apply();
+		}
+		return value;
 	}
 
 	public synchronized static boolean setInt(String key, int value) {
@@ -61,11 +75,25 @@ public class GlobalPreferences {
 	}
 
 	public synchronized static boolean getBoolean(String key, boolean defaultValue) {
-		return getInstance().getBoolean(key, defaultValue);
+		boolean value;
+		try {
+			value = getInstance().getBoolean(key, defaultValue);
+		} catch (Throwable e) {
+			value = defaultValue;
+			getInstance().edit().remove(key).apply();
+		}
+		return value;
 	}
 
 	public synchronized static String getString(String key, String defaultValue) {
-		return getInstance().getString(key, defaultValue);
+		String value;
+		try {
+			value = getInstance().getString(key, defaultValue);
+		} catch (Throwable e) {
+			value = defaultValue;
+			getInstance().edit().remove(key).apply();
+		}
+		return value;
 	}
 
 	public synchronized static String getString(String key) {
