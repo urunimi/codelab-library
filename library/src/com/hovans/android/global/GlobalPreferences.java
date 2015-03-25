@@ -136,7 +136,13 @@ public class GlobalPreferences {
 			if(value != null) {
 				value = SimpleCrypto.encrypt(seed, value);
 			}
-			getInstance().edit().putString(key, value).commit();
+			SharedPreferences.Editor editor = getInstance().edit();
+			if(value == null) {
+				editor.remove(key);
+			} else {
+				editor.putString(key, value);
+			}
+			editor.commit();
 			return true;
 		} catch(Exception e) {
 			LogByCodeLab.e(e, "key=" + key + ", value=" + value);
