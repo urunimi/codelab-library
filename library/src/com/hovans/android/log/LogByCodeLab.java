@@ -18,6 +18,7 @@ import java.util.Date;
  *
  */
 public class LogByCodeLab {
+
 	
 	public static String formatLog(String message) {
 		return "[" + Thread.currentThread().getId() + "] " + message;
@@ -110,16 +111,16 @@ public class LogByCodeLab {
 			calendar.setTime(today);
 			calendar.add(Calendar.DATE, -2);
 
-			final File oldFile = new File(root, new SimpleDateFormat("yyyy-MM-dd").format(calendar.getTime())+ ".txt");
+			final File oldFile = new File(root, dateFormat.format(calendar.getTime())+ ".txt");
 			if(oldFile.exists()) {
 				oldFile.delete();
 			}
 
 			calendar.setTime(today);
 
-			final File logFile = new File(root, new SimpleDateFormat("yyyy-MM-dd").format(calendar.getTime())+ ".txt");
+			final File logFile = new File(root, dateFormat.format(calendar.getTime())+ ".txt");
 
-			final String messageWithTime = new SimpleDateFormat("yy-MM-dd HH:mm:ss.SSS").format(today) + message;
+			final String messageWithTime = dateTimeFormat.format(today) + message;
 
 			if(handlerThread == null) {
 				handlerThread = new HandlerThread(DebugConfig.LOG_TAG);
@@ -142,6 +143,9 @@ public class LogByCodeLab {
 			});
 		}
 	}
+
+	static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+	static final SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yy-MM-dd HH:mm:ss.SSS");
 
 	static HandlerThread handlerThread;
 	static Handler handler;
