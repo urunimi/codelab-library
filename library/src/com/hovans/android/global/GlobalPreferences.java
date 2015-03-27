@@ -150,10 +150,6 @@ public class GlobalPreferences {
 		}
 	}
 
-	public static SharedPreferences getSharedPreferences(String fileName) {
-		return GlobalApplication.getContext().getSharedPreferences(fileName, Context.MODE_PRIVATE);
-	}
-
 	protected GlobalPreferences() {
 		preferenceInstance = PreferenceManager.getDefaultSharedPreferences(appContext);
 	}
