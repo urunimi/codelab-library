@@ -21,4 +21,9 @@ public class NetHttpResult {
 	public String getMessage() {
 		return message;
 	}
+
+	@Override
+	public String toString() {
+		return "code: " + code + ", message: " + message + ", result: " + result;
+	}
 }

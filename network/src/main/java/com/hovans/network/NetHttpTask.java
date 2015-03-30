@@ -1,21 +1,38 @@
 package com.hovans.network;
 
-import java.util.HashMap;
-import java.util.Locale;
-
-import org.apache.http.Header;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.os.Looper;
-
+import android.util.Log;
 import com.google.gson.Gson;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.RequestParams;
 import com.loopj.android.http.SyncHttpClient;
 import com.loopj.android.http.TextHttpResponseHandler;
+import org.apache.http.Header;
+import org.apache.http.HttpVersion;
+import org.apache.http.conn.scheme.PlainSocketFactory;
+import org.apache.http.conn.scheme.Scheme;
+import org.apache.http.conn.scheme.SchemeRegistry;
+import org.apache.http.conn.ssl.SSLSocketFactory;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpParams;
+import org.apache.http.params.HttpProtocolParams;
+import org.apache.http.protocol.HTTP;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+import java.io.IOException;
+import java.net.Socket;
+import java.net.UnknownHostException;
+import java.security.*;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+import java.util.HashMap;
+import java.util.Locale;
 
 /**
  * NetHttpTask.java
@@ -23,6 +40,8 @@ import com.loopj.android.http.TextHttpResponseHandler;
  * @author Hovan Yoo
  */
 public class NetHttpTask {
+
+	static final String TAG = NetHttpTask.class.getSimpleName();
 
 	static final Gson gson = new Gson();
 
@@ -34,10 +53,9 @@ public class NetHttpTask {
 
 	public void post(final ResponseHandler callback) {
 
-		AsyncHttpClient httpClient = synchronousMode? new SyncHttpClient() : new AsyncHttpClient();
+		AsyncHttpClient httpClient = synchronousMode? new SyncHttpClient(getNewHttpSchemeRegistry()) : new AsyncHttpClient(getNewHttpSchemeRegistry());
 
 		RequestParams requestParams = new RequestParams();
-
 		requestParams.put("locale", Locale.getDefault().toString());
 
 		if(params != null) {
@@ -45,6 +63,16 @@ public class NetHttpTask {
 				requestParams.put(key, params.get(key));
 			}
 		}
+//
+//		try {
+//			KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
+//			trustStore.load(null, null);
+//			SSLSocketFactory sf = new MySSLSocketFactory(trustStore);
+//			sf.setHostnameVerifier(SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+//			httpClient.setSSLSocketFactory(sf);
+//		} catch (Exception e) {
+//			Log.e(TAG, e.getMessage());
+//		}
 
 		if(activityForProgress != null) {
 			activityForProgress.runOnUiThread(new Runnable() {
@@ -87,9 +115,12 @@ public class NetHttpTask {
 					if(jsonObject.has("result")) {
 						result = jsonObject.getString("result");
 					}
+
+
+
 					callback.onSuccess(statusCode, result);
 				} catch (JSONException e) {
-					e.printStackTrace();
+					Log.e(TAG, e.getMessage());
 				}
 			}
 		});
@@ -110,10 +141,35 @@ public class NetHttpTask {
 		}
 	}
 
+	public SchemeRegistry getNewHttpSchemeRegistry() {
+		try {
+			KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
+			trustStore.load(null, null);
+
+			SSLSocketFactory sf = new MySSLSocketFactory(trustStore);
+			sf.setHostnameVerifier(SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+
+			HttpParams params = new BasicHttpParams();
+			HttpProtocolParams.setVersion(params, HttpVersion.HTTP_1_1);
+			HttpProtocolParams.setContentCharset(params, HTTP.UTF_8);
+
+			SchemeRegistry registry = new SchemeRegistry();
+			registry.register(new Scheme("http", PlainSocketFactory.getSocketFactory(), 80));
+			registry.register(new Scheme("https", sf, 443));
+
+			return registry;
+
+		} catch (Exception e) {
+			return null;
+		}
+	}
+
 	public interface ResponseHandler {
 		void onSuccess(int statusCode, String result);
 		void onFail(int statusCode, NetHttpResult result);
 	}
+
+
 
 	private NetHttpTask(String url, HashMap<String, String> params, boolean syncronous, Activity activityForProgress, String waitString) {
 		this.waitString = waitString;
@@ -176,5 +232,39 @@ public class NetHttpTask {
 		public NetHttpTask build() {
 			return new NetHttpTask(url, params, synchronousMode, activityForProgress, waitString);
 		}
+	}
+
+
+}
+
+class MySSLSocketFactory extends SSLSocketFactory {
+	SSLContext sslContext = SSLContext.getInstance("TLS");
+
+	public MySSLSocketFactory(KeyStore truststore) throws NoSuchAlgorithmException, KeyManagementException, KeyStoreException, UnrecoverableKeyException {
+		super(truststore);
+
+		TrustManager tm = new X509TrustManager() {
+			public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+			}
+
+			public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+			}
+
+			public X509Certificate[] getAcceptedIssuers() {
+				return null;
+			}
+		};
+
+		sslContext.init(null, new TrustManager[] { tm }, null);
+	}
+
+	@Override
+	public Socket createSocket(Socket socket, String host, int port, boolean autoClose) throws IOException, UnknownHostException {
+		return sslContext.getSocketFactory().createSocket(socket, host, port, autoClose);
+	}
+
+	@Override
+	public Socket createSocket() throws IOException {
+		return sslContext.getSocketFactory().createSocket();
 	}
 }
