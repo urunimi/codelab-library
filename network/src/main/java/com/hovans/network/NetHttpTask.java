@@ -40,8 +40,6 @@ public class NetHttpTask {
 	public void post(final ResponseHandler callback) {
 		this.callback = callback;
 
-		params.put("locale", Locale.getDefault().toString());
-
 		if(activityForProgress != null) {
 			activityForProgress.runOnUiThread(new Runnable() {
 				@Override
@@ -165,6 +163,7 @@ public class NetHttpTask {
 	};
 
 	void handleResponse(int statusCode, String responseString) {
+		closeDialogIfItNeeds();
 		switch(statusCode) {
 			case 200:
 				try {
@@ -172,22 +171,21 @@ public class NetHttpTask {
 
 					if(jsonObject.getInt("code") != 0) {
 						callback.onFail(statusCode, gson.fromJson(responseString, NetHttpResult.class));
-					}
+					} else {
 
-					closeDialogIfItNeeds();
-					String resultString = null;
-					if(jsonObject.has("result")) {
-						resultString = jsonObject.getString("result");
-					}
+						String resultString = null;
+						if(jsonObject.has("result")) {
+							resultString = jsonObject.getString("result");
+						}
 
-					callback.onSuccess(statusCode, resultString);
-				} catch (JSONException e) {
+						callback.onSuccess(statusCode, resultString);
+					}
+				} catch (Exception e) {
 					Log.e(TAG, e.getMessage());
 				}
 
 				break;
 			default:
-				closeDialogIfItNeeds();
 				try {
 					callback.onFail(statusCode, gson.fromJson(responseString, NetHttpResult.class));
 				} catch (Exception e) {
