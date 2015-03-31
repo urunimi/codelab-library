@@ -134,8 +134,6 @@ public class NetHttpTask {
 				os.close();
 
 				final int statusCode = urlConnection.getResponseCode();
-				System.out.println("\nSending 'POST' request to URL : " + url);
-				System.out.println("Response Code : " + statusCode);
 
 				BufferedReader in = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
 				String inputLine;
@@ -161,6 +159,7 @@ public class NetHttpTask {
 
 			} catch (Exception e) {
 				e.printStackTrace();
+				handleResponse(9999, null);
 			}
 		}
 	};
