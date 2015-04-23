@@ -11,6 +11,7 @@ import org.json.JSONObject;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSocketFactory;
 import java.io.*;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.HashMap;
@@ -97,11 +98,13 @@ public class NetHttpTask {
 		@Override
 		public void run() {
 			try {
-				HttpsURLConnection urlConnection = (HttpsURLConnection) new URL(url).openConnection();
+				HttpURLConnection urlConnection = (HttpURLConnection) new URL(url).openConnection();
+				if(url.startsWith("https")) {
+					if(sslSocketFactory != null) ((HttpsURLConnection) urlConnection).setSSLSocketFactory(sslSocketFactory);
+				}
 				urlConnection.setReadTimeout(10000);
 				urlConnection.setConnectTimeout(15000);
 				urlConnection.setRequestMethod("POST");
-				if(sslSocketFactory != null) urlConnection.setSSLSocketFactory(sslSocketFactory);
 				urlConnection.setDoInput(true);
 				urlConnection.setDoOutput(true);
 
