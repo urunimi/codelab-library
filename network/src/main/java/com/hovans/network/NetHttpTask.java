@@ -114,6 +114,9 @@ public class NetHttpTask {
 				boolean first = true;
 
 				for (String key : params.keySet()) {
+					String value = params.get(key);
+
+					if(value == null || value.equals("")) continue;
 					if (first)
 						first = false;
 					else
@@ -121,7 +124,7 @@ public class NetHttpTask {
 
 					result.append(URLEncoder.encode(key, "UTF-8"));
 					result.append("=");
-					result.append(URLEncoder.encode(params.get(key), "UTF-8"));
+					result.append(URLEncoder.encode(value, "UTF-8"));
 				}
 
 				OutputStream os = urlConnection.getOutputStream();
