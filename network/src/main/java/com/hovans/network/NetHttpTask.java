@@ -6,6 +6,8 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.annotations.Expose;
 import org.json.JSONObject;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -25,16 +27,21 @@ public class NetHttpTask {
 
 	static final String TAG = NetHttpTask.class.getSimpleName();
 
-	static final Gson gson = new Gson();
+	static final Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
 
-	final String url, waitString;
+	@Expose
+	final String url;
+	final String waitString;
+	@Expose
 	final HashMap<String, String> params;
+
 	final boolean synchronousMode;
 	final Activity activityForProgress;
 	final SSLSocketFactory sslSocketFactory;
 	ProgressDialog progressDialog;
 	ResponseHandler callback;
 	Handler handler;
+
 
 	public void post(final ResponseHandler callback) {
 		this.callback = callback;
@@ -92,6 +99,16 @@ public class NetHttpTask {
 //				}
 //			}
 //		});
+	}
+
+	public String makeBackup() {
+		return gson.toJson(this);
+	}
+
+	public static NetHttpTask restoreBackup(String gsonData) {
+		NetHttpTask backup = gson.fromJson(gsonData, NetHttpTask.class);
+		NetHttpTask task = new NetHttpTask(backup);
+		return task;
 	}
 
 	Thread worker = new Thread() {
@@ -160,7 +177,6 @@ public class NetHttpTask {
 				}
 
 			} catch (Exception e) {
-				e.printStackTrace();
 				handleResponse(9999, null);
 			}
 		}
@@ -218,6 +234,15 @@ public class NetHttpTask {
 	public interface ResponseHandler {
 		void onSuccess(int statusCode, String result);
 		void onFail(int statusCode, NetHttpResult result);
+	}
+
+	public NetHttpTask(NetHttpTask backup) {
+		waitString = backup.waitString;
+		url = backup.url;
+		params = backup.params;
+		sslSocketFactory = backup.sslSocketFactory;
+		synchronousMode = true;
+		activityForProgress = null;
 	}
 
 	private NetHttpTask(String url, HashMap<String, String> params, boolean syncronous, Activity activityForProgress, String waitString, SSLSocketFactory sslSocketFactory) {
