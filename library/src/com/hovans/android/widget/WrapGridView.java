@@ -2,6 +2,7 @@ package com.hovans.android.widget;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.view.ViewGroup;
 import android.widget.GridView;
 
@@ -45,6 +46,15 @@ public class WrapGridView extends GridView {
 		} else {
 			super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 		}
+	}
+
+	@Override
+	public boolean onTouchEvent(MotionEvent event) {
+		if(event.getAction() == MotionEvent.ACTION_MOVE){
+			return true;
+		}
+
+		return super.onTouchEvent(event);
 	}
 
 	public void setExpanded(boolean expanded) {
