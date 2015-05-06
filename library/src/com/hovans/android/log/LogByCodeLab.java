@@ -103,7 +103,7 @@ public class LogByCodeLab {
 	}
 	
 	static void writeLogToFile(String message) {
-		File root = new File(GlobalApplication.getContext().getExternalCacheDir(), DebugConfig.LOG_FOLDER);
+		File root = new File(GlobalApplication.getContext().getCacheDir(), DebugConfig.LOG_FOLDER);
 		if(!root.canWrite())root.mkdirs();
 		if (root.canWrite()) {
 			Date today = new Date();
