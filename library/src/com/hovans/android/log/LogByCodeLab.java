@@ -128,19 +128,21 @@ public class LogByCodeLab {
 				handler = new Handler(handlerThread.getLooper());
 			}
 
-			handler.post(new Runnable() {
-				@Override
-				public void run() {
-					try {
-						FileOutputStream fos = new FileOutputStream(logFile, true);
-						fos.write((messageWithTime + "\n").getBytes());
-						fos.close();
+			if(handler != null) {
+				handler.post(new Runnable() {
+					@Override
+					public void run() {
+						try {
+							FileOutputStream fos = new FileOutputStream(logFile, true);
+							fos.write((messageWithTime + "\n").getBytes());
+							fos.close();
 
-					} catch (IOException ioe) {
-						Log.e(DebugConfig.LOG_TAG, "Could not write filen", ioe);
+						} catch (IOException ioe) {
+							Log.e(DebugConfig.LOG_TAG, "Could not write filen", ioe);
+						}
 					}
-				}
-			});
+				});
+			}
 		}
 	}
 

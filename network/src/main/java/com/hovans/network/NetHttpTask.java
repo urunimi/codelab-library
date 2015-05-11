@@ -181,7 +181,7 @@ public class NetHttpTask {
 		}
 	};
 
-	void handleResponse(int statusCode, String responseString, Throwable th) {
+	void handleResponse(int statusCode, String responseString, Exception e) {
 		closeDialogIfItNeeds();
 		switch(statusCode) {
 			case 200:
@@ -189,7 +189,7 @@ public class NetHttpTask {
 					JSONObject jsonObject = new JSONObject(responseString);
 
 					if(jsonObject.getInt("code") != 0) {
-						callback.onFail(statusCode, gson.fromJson(responseString, NetHttpResult.class), null);
+						callback.onFail(statusCode, gson.fromJson(responseString, NetHttpResult.class), e);
 					} else {
 
 						String resultString = null;
@@ -199,19 +199,18 @@ public class NetHttpTask {
 
 						callback.onSuccess(statusCode, resultString);
 					}
-				} catch (Exception e) {
-					callback.onFail(statusCode, null, e);
+				} catch (Exception ex) {
+					callback.onFail(statusCode, null, ex);
 				}
 
 				break;
 			default:
 				try {
-					callback.onFail(statusCode, gson.fromJson(responseString, NetHttpResult.class), th);
-				} catch (Exception e) {
-					callback.onFail(statusCode, null, e);
+					callback.onFail(statusCode, gson.fromJson(responseString, NetHttpResult.class), e);
+				} catch (Exception ex) {
+					callback.onFail(statusCode, null, ex);
 				}
 				break;
-
 		}
 	}
 
