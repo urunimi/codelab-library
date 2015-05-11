@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
@@ -169,20 +168,20 @@ public class NetHttpTask {
 					handler.post(new Runnable() {
 						@Override
 						public void run() {
-							handleResponse(statusCode, responseString);
+							handleResponse(statusCode, responseString, null);
 						}
 					});
 				} else {
-					handleResponse(statusCode, responseString);
+					handleResponse(statusCode, responseString, null);
 				}
 
 			} catch (Exception e) {
-				handleResponse(9999, null);
+				handleResponse(9999, null, e);
 			}
 		}
 	};
 
-	void handleResponse(int statusCode, String responseString) {
+	void handleResponse(int statusCode, String responseString, Throwable th) {
 		closeDialogIfItNeeds();
 		switch(statusCode) {
 			case 200:
@@ -190,7 +189,7 @@ public class NetHttpTask {
 					JSONObject jsonObject = new JSONObject(responseString);
 
 					if(jsonObject.getInt("code") != 0) {
-						callback.onFail(statusCode, gson.fromJson(responseString, NetHttpResult.class));
+						callback.onFail(statusCode, gson.fromJson(responseString, NetHttpResult.class), null);
 					} else {
 
 						String resultString = null;
@@ -201,15 +200,15 @@ public class NetHttpTask {
 						callback.onSuccess(statusCode, resultString);
 					}
 				} catch (Exception e) {
-					Log.e(TAG, e.getMessage());
+					callback.onFail(statusCode, null, e);
 				}
 
 				break;
 			default:
 				try {
-					callback.onFail(statusCode, gson.fromJson(responseString, NetHttpResult.class));
+					callback.onFail(statusCode, gson.fromJson(responseString, NetHttpResult.class), th);
 				} catch (Exception e) {
-					callback.onFail(statusCode, null);
+					callback.onFail(statusCode, null, e);
 				}
 				break;
 
@@ -233,7 +232,7 @@ public class NetHttpTask {
 
 	public interface ResponseHandler {
 		void onSuccess(int statusCode, String result);
-		void onFail(int statusCode, NetHttpResult result);
+		void onFail(int statusCode, NetHttpResult result, Throwable e);
 	}
 
 	public NetHttpTask(NetHttpTask backup) {

@@ -1,5 +1,6 @@
 package com.hovans.android.util;
 
+import android.accounts.AccountManager;
 import android.app.ActivityManager;
 import android.app.AlarmManager;
 import android.app.NotificationManager;
@@ -25,7 +26,7 @@ public class SystemService {
 
 	public static NotificationManager getNotificationManager() {
 		if(sNotificationManager == null || sNotificationManager.get() == null) {
-			sNotificationManager = new WeakReference<NotificationManager>((NotificationManager) GlobalApplication.getContext().getSystemService(Context.NOTIFICATION_SERVICE));
+			sNotificationManager = new WeakReference<>((NotificationManager) GlobalApplication.getContext().getSystemService(Context.NOTIFICATION_SERVICE));
 		}
 		return sNotificationManager.get();
 	}
@@ -33,7 +34,7 @@ public class SystemService {
 	static WeakReference<TelephonyManager> sTelephonyManager;
 	public static TelephonyManager getTelephonyManager() {
 		if(sTelephonyManager == null || sTelephonyManager.get() == null) {
-			sTelephonyManager = new WeakReference<TelephonyManager>((TelephonyManager) GlobalApplication.getContext().getSystemService(Context.TELEPHONY_SERVICE));
+			sTelephonyManager = new WeakReference<>((TelephonyManager) GlobalApplication.getContext().getSystemService(Context.TELEPHONY_SERVICE));
 		}
 		return sTelephonyManager.get();
 	}
@@ -42,7 +43,7 @@ public class SystemService {
 	static WeakReference<AlarmManager> sAlarmManager;
 	public static AlarmManager getAlarmManager() {
 		if(sAlarmManager == null || sAlarmManager.get() == null) {
-			sAlarmManager = new WeakReference<AlarmManager>((AlarmManager) GlobalApplication.getContext().getSystemService(Context.ALARM_SERVICE));
+			sAlarmManager = new WeakReference<>((AlarmManager) GlobalApplication.getContext().getSystemService(Context.ALARM_SERVICE));
 		}
 		return sAlarmManager.get();
 	}
@@ -50,7 +51,7 @@ public class SystemService {
 	static WeakReference<PowerManager> sPowerManager;
 	public static PowerManager getPowerManager() {
 		if(sPowerManager == null || sPowerManager.get() == null) {
-			sPowerManager = new WeakReference<PowerManager>((PowerManager) GlobalApplication.getContext().getSystemService(Context.POWER_SERVICE));
+			sPowerManager = new WeakReference<>((PowerManager) GlobalApplication.getContext().getSystemService(Context.POWER_SERVICE));
 		}
 		return sPowerManager.get();
 	}
@@ -58,7 +59,7 @@ public class SystemService {
 	static WeakReference<ActivityManager> sActivityManager;
 	public static ActivityManager getActivityManager() {
 		if(sActivityManager == null || sActivityManager.get() == null) {
-			sActivityManager = new WeakReference<ActivityManager>((ActivityManager) GlobalApplication.getContext().getSystemService(Context.ACTIVITY_SERVICE));
+			sActivityManager = new WeakReference<>((ActivityManager) GlobalApplication.getContext().getSystemService(Context.ACTIVITY_SERVICE));
 		}
 		return sActivityManager.get();
 	}
@@ -66,7 +67,7 @@ public class SystemService {
 	static WeakReference<WindowManager> sWindowManager;
 	public static WindowManager getWindowManager() {
 		if(sWindowManager == null || sWindowManager.get() == null) {
-			sWindowManager = new WeakReference<WindowManager>((WindowManager) GlobalApplication.getContext().getSystemService(Context.WINDOW_SERVICE));
+			sWindowManager = new WeakReference<>((WindowManager) GlobalApplication.getContext().getSystemService(Context.WINDOW_SERVICE));
 		}
 		return sWindowManager.get();
 	}
@@ -79,5 +80,13 @@ public class SystemService {
 			android.content.ClipboardManager clipboardManager = (android.content.ClipboardManager) GlobalApplication.getContext().getSystemService(Context.CLIPBOARD_SERVICE);
 			clipboardManager.setText(text);
 		}
+	}
+
+	static WeakReference<AccountManager> sAccountManager;
+	public static AccountManager getAccountManager() {
+		if(sAccountManager == null || sAccountManager.get() == null) {
+			sAccountManager = new WeakReference<>((AccountManager) GlobalApplication.getContext().getSystemService(Context.ACCOUNT_SERVICE));
+		}
+		return sAccountManager.get();
 	}
 }
