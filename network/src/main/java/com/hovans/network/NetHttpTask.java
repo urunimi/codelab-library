@@ -26,7 +26,7 @@ public class NetHttpTask {
 
 	static final String TAG = NetHttpTask.class.getSimpleName();
 
-	static final Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
+	static final Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'ZZZ").excludeFieldsWithoutExposeAnnotation().create();
 
 	@Expose
 	final String url;
@@ -38,12 +38,21 @@ public class NetHttpTask {
 	final Activity activityForProgress;
 	final SSLSocketFactory sslSocketFactory;
 	ProgressDialog progressDialog;
-	ResponseHandler callback;
+	StringResponseHandler callbackString;
+	ResponseHandler callbackObject;
 	Handler handler;
 
+	Class type;
 
-	public void post(final ResponseHandler callback) {
-		this.callback = callback;
+	public <T> void post(Class<T> classOfT, final ResponseHandler<T> callback) {
+		type = classOfT;
+		this.callbackObject = callback;
+
+		post(null);
+	}
+
+	public void post(final StringResponseHandler callback) {
+		this.callbackString = callback;
 
 		if(activityForProgress != null) {
 			activityForProgress.runOnUiThread(new Runnable() {
@@ -69,9 +78,9 @@ public class NetHttpTask {
 //			public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
 //				closeDialogIfItNeeds();
 //				try {
-//					callback.onFail(statusCode, gson.fromJson(responseString, NetHttpResult.class));
+//					callbackString.onFail(statusCode, gson.fromJson(responseString, NetHttpResult.class));
 //				} catch (Exception e) {
-//					callback.onFail(statusCode, null);
+//					callbackString.onFail(statusCode, null);
 //				}
 //			}
 //
@@ -81,7 +90,7 @@ public class NetHttpTask {
 //					JSONObject jsonObject = new JSONObject(responseString);
 //
 //					if(jsonObject.getInt("code") != 0) {
-//						callback.onFail(statusCode, gson.fromJson(responseString, NetHttpResult.class));
+//						callbackString.onFail(statusCode, gson.fromJson(responseString, NetHttpResult.class));
 //					}
 //
 //					closeDialogIfItNeeds();
@@ -92,7 +101,7 @@ public class NetHttpTask {
 //
 //
 //
-//					callback.onSuccess(statusCode, result);
+//					callbackString.onSuccess(statusCode, result);
 //				} catch (JSONException e) {
 //					Log.e(TAG, e.getMessage());
 //				}
@@ -189,7 +198,7 @@ public class NetHttpTask {
 					JSONObject jsonObject = new JSONObject(responseString);
 
 					if(jsonObject.getInt("code") != 0) {
-						callback.onFail(statusCode, gson.fromJson(responseString, NetHttpResult.class), e);
+						handleFailResponse(statusCode, gson.fromJson(responseString, NetHttpResult.class), e);
 					} else {
 
 						String resultString = null;
@@ -197,20 +206,37 @@ public class NetHttpTask {
 							resultString = jsonObject.getString("result");
 						}
 
-						callback.onSuccess(statusCode, resultString);
+						handleSuccessResponse(statusCode, resultString);
 					}
 				} catch (Exception ex) {
-					callback.onFail(statusCode, null, ex);
+					handleFailResponse(statusCode, null, ex);
 				}
 
 				break;
 			default:
 				try {
-					callback.onFail(statusCode, gson.fromJson(responseString, NetHttpResult.class), e);
+					handleFailResponse(statusCode, gson.fromJson(responseString, NetHttpResult.class), e);
 				} catch (Exception ex) {
-					callback.onFail(statusCode, null, ex);
+					handleFailResponse(statusCode, null, ex);
 				}
 				break;
+		}
+	}
+
+	void handleSuccessResponse(int statusCode, String resultString) {
+		if(callbackString != null) {
+			callbackString.onSuccess(statusCode, resultString);
+		} else if(callbackObject != null) {
+			Object resultObject = gson.fromJson(resultString, type);
+			callbackObject.onSuccess(statusCode, resultObject, resultString);
+		}
+	}
+
+	void handleFailResponse(int statusCode, NetHttpResult result, Throwable e) {
+		if(callbackString != null) {
+			callbackString.onFail(statusCode, result, e);
+		} else if(callbackObject != null) {
+			callbackObject.onFail(statusCode, result, e);
 		}
 	}
 
@@ -229,8 +255,13 @@ public class NetHttpTask {
 		}
 	}
 
-	public interface ResponseHandler {
+	public interface StringResponseHandler {
 		void onSuccess(int statusCode, String result);
+		void onFail(int statusCode, NetHttpResult result, Throwable e);
+	}
+
+	public interface ResponseHandler<T> {
+		void onSuccess(int statusCode, T result, String resultString);
 		void onFail(int statusCode, NetHttpResult result, Throwable e);
 	}
 
