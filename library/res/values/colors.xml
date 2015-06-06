@@ -244,6 +244,22 @@
     <color name="l_amber_A400">#ffc400</color>
     <color name="l_amber_A700">#ffab00</color>
 
+	<color name="l_yellow_50">#FFFDE7</color>
+	<color name="l_yellow_100">#FFF9C4</color>
+	<color name="l_yellow_200">#FFF59D</color>
+	<color name="l_yellow_300">#FFF176</color>
+	<color name="l_yellow_400">#FFEE58</color>
+	<color name="l_yellow_500">#FFEB3B</color>
+	<color name="l_yellow_600">#FDD835</color>
+	<color name="l_yellow_700">#FBC02D</color>
+	<color name="l_yellow_800">#F9A825</color>
+	<color name="l_yellow_900">#F57F17</color>
+	<color name="l_yellow_A100">#FFFF8D</color>
+	<color name="l_yellow_A200">#FFFF00</color>
+	<color name="l_yellow_A400">#FFEA00</color>
+	<color name="l_yellow_A700">#FFD600</color>
+
+
     <color name="l_blue_50">#e7e9fd</color>
     <color name="l_blue_100">#d0d9ff</color>
     <color name="l_blue_200">#afbfff</color>
