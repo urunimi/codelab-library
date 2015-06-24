@@ -24,8 +24,4 @@ allprojects {
     ext.androidTargetSDKVersion = 19
 }
 
-task wrapper(type: Wrapper) {
-    gradleVersion = '1.11'
-}
-
 //apply plugin: 'android-reporting'
