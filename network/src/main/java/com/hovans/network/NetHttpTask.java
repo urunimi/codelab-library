@@ -42,7 +42,7 @@ public class NetHttpTask {
 	//	final Context context;
 	final boolean synchronousMode;
 	final Activity activityForProgress;
-	final SSLSocketFactory sslSocketFactory;
+	//	final SSLSocketFactory sslSocketFactory;
 	ProgressDialog progressDialog;
 	StringResponseHandler callbackString;
 	ResponseHandler callbackObject;
@@ -130,9 +130,9 @@ public class NetHttpTask {
 		public void run() {
 			try {
 				HttpURLConnection urlConnection = (HttpURLConnection) new URL(url).openConnection();
-				if(url.startsWith("https")) {
-					if(sslSocketFactory != null) ((HttpsURLConnection) urlConnection).setSSLSocketFactory(sslSocketFactory);
-				}
+//				if(url.startsWith("https")) {
+//					if(sslSocketFactory != null) ((HttpsURLConnection) urlConnection).setSSLSocketFactory(sslSocketFactory);
+//				}
 				urlConnection.setReadTimeout(10000);
 				urlConnection.setConnectTimeout(15000);
 				urlConnection.setRequestMethod("POST");
@@ -275,7 +275,7 @@ public class NetHttpTask {
 		waitString = backup.waitString;
 		url = backup.url;
 		params = backup.params;
-		sslSocketFactory = backup.sslSocketFactory;
+//		sslSocketFactory = backup.sslSocketFactory;
 		synchronousMode = true;
 		activityForProgress = null;
 	}
@@ -284,8 +284,11 @@ public class NetHttpTask {
 		this.waitString = waitString;
 		this.url = url;
 		this.params = params;
-		this.sslSocketFactory = sslSocketFactory;
-		if (queue == null) queue = Volley.newRequestQueue(context);
+//		this.sslSocketFactory = sslSocketFactory;
+		if (queue == null) {
+			queue = Volley.newRequestQueue(context);
+			HttpsURLConnection.setDefaultSSLSocketFactory(sslSocketFactory);
+		}
 
 		if(Looper.myLooper() == null) synchronousMode = true;
 		else {
