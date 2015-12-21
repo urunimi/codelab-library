@@ -12,7 +12,7 @@ apply plugin: 'com.android.library'
 
 android {
     compileSdkVersion 23
-    buildToolsVersion '23.0.1'
+    buildToolsVersion '23.0.2'
 
     defaultConfig {
         minSdkVersion 9
@@ -28,7 +28,9 @@ android {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
+//    compile('com.hovans.android:library:+')
     compile('com.google.code.gson:gson:2.+')
-    compile('com.loopj.android:android-async-http:1.4.+')
-    compile "cz.msebera.android:httpclient:4.3.6"
+    compile('com.mcxiaoke.volley:library:1.+')
+//    compile('com.loopj.android:android-async-http:1.4.+')
+//    compile "cz.msebera.android:httpclient:4.3.6"
 }

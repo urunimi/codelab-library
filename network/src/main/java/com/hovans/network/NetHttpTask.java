@@ -2,8 +2,11 @@ package com.hovans.network;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
@@ -34,6 +37,9 @@ public class NetHttpTask {
 	@Expose
 	final HashMap<String, String> params;
 
+	static RequestQueue queue;
+
+	//	final Context context;
 	final boolean synchronousMode;
 	final Activity activityForProgress;
 	final SSLSocketFactory sslSocketFactory;
@@ -274,11 +280,12 @@ public class NetHttpTask {
 		activityForProgress = null;
 	}
 
-	private NetHttpTask(String url, HashMap<String, String> params, boolean syncronous, Activity activityForProgress, String waitString, SSLSocketFactory sslSocketFactory) {
+	private NetHttpTask(Context context, String url, HashMap<String, String> params, boolean syncronous, Activity activityForProgress, String waitString, SSLSocketFactory sslSocketFactory) {
 		this.waitString = waitString;
 		this.url = url;
 		this.params = params;
 		this.sslSocketFactory = sslSocketFactory;
+		if (queue == null) queue = Volley.newRequestQueue(context);
 
 		if(Looper.myLooper() == null) synchronousMode = true;
 		else {
@@ -292,9 +299,15 @@ public class NetHttpTask {
 		HashMap<String, String> params = new HashMap<>();
 		boolean synchronousMode;
 
+		Context context;
+
 		SSLSocketFactory sslSocketFactory;
 		Activity activityForProgress;
 		String waitString;
+
+		public Builder(Context context) {
+			this.context = context;
+		}
 
 //		final String URL_BASE = "http://autoguard.hovans.com";
 
@@ -340,7 +353,7 @@ public class NetHttpTask {
 		}
 
 		public NetHttpTask build() {
-			return new NetHttpTask(url, params, synchronousMode, activityForProgress, waitString, sslSocketFactory);
+			return new NetHttpTask(context, url, params, synchronousMode, activityForProgress, waitString, sslSocketFactory);
 		}
 	}
 }
