@@ -5,7 +5,13 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
+import com.android.volley.AuthFailureError;
 import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.RequestFuture;
+import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -14,11 +20,11 @@ import org.json.JSONObject;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSocketFactory;
-import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLEncoder;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * NetHttpTask.java
@@ -30,6 +36,8 @@ public class NetHttpTask {
 	static final String TAG = NetHttpTask.class.getSimpleName();
 
 	static final Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'ZZZ").excludeFieldsWithoutExposeAnnotation().create();
+
+	static final int REQUEST_TIMEOUT = 30, RESPONSE_OK = 200;
 
 	@Expose
 	final String url;
@@ -73,10 +81,26 @@ public class NetHttpTask {
 		}
 
 		if(synchronousMode == false && Looper.myLooper() != null) {
-			worker.start();
+			StringRequest stringRequest = new StringRequest(StringRequest.Method.POST, url, stringListener, errorListener) {
+				@Override
+				protected Map<String, String> getParams() throws AuthFailureError {
+					return params;
+				}
+			};
+
+			queue.add(stringRequest);
 			handler = new Handler();
 		} else {
-			worker.run();
+			RequestFuture<String> future = RequestFuture.newFuture();
+			StringRequest request = new StringRequest(StringRequest.Method.POST, url, future, errorListener);
+			queue.add(request);
+			try {
+				String result = future.get(REQUEST_TIMEOUT, TimeUnit.SECONDS);
+				stringListener.onResponse(result);
+			} catch (InterruptedException | ExecutionException | TimeoutException e) {
+				Log.w(TAG, e);
+				errorListener.onErrorResponse(new VolleyError(e));
+			}
 		}
 
 //		httpClient.post(url, requestParams, new TextHttpResponseHandler() {
@@ -115,6 +139,29 @@ public class NetHttpTask {
 //		});
 	}
 
+	Response.Listener<String> stringListener = new Response.Listener<String>() {
+		@Override
+		public void onResponse(final String response) {
+			if (handler != null) {
+				handler.post(new Runnable() {
+					@Override
+					public void run() {
+						handleResponse(RESPONSE_OK, response, null);
+					}
+				});
+			} else {
+				handleResponse(RESPONSE_OK, response, null);
+			}
+		}
+	};
+
+	Response.ErrorListener errorListener = new Response.ErrorListener() {
+		@Override
+		public void onErrorResponse(VolleyError error) {
+			handleResponse(error.networkResponse.statusCode, null, error.getCause());
+		}
+	};
+
 	public String makeBackup() {
 		return gson.toJson(this);
 	}
@@ -125,81 +172,10 @@ public class NetHttpTask {
 		return task;
 	}
 
-	Thread worker = new Thread() {
-		@Override
-		public void run() {
-			try {
-				HttpURLConnection urlConnection = (HttpURLConnection) new URL(url).openConnection();
-//				if(url.startsWith("https")) {
-//					if(sslSocketFactory != null) ((HttpsURLConnection) urlConnection).setSSLSocketFactory(sslSocketFactory);
-//				}
-				urlConnection.setReadTimeout(10000);
-				urlConnection.setConnectTimeout(15000);
-				urlConnection.setRequestMethod("POST");
-				urlConnection.setDoInput(true);
-				urlConnection.setDoOutput(true);
-
-//				List<NameValuePair> params = new ArrayList<NameValuePair>();
-
-				StringBuilder result = new StringBuilder();
-				boolean first = true;
-
-				for (String key : params.keySet()) {
-					String value = params.get(key);
-
-					if(value == null || value.equals("")) continue;
-					if (first)
-						first = false;
-					else
-						result.append("&");
-
-					result.append(URLEncoder.encode(key, "UTF-8"));
-					result.append("=");
-					result.append(URLEncoder.encode(value, "UTF-8"));
-				}
-
-				OutputStream os = urlConnection.getOutputStream();
-				BufferedWriter writer = new BufferedWriter(
-						new OutputStreamWriter(os, "UTF-8"));
-				writer.write(result.toString());
-				writer.flush();
-				writer.close();
-				os.close();
-
-				final int statusCode = urlConnection.getResponseCode();
-
-				BufferedReader in = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
-				String inputLine;
-				StringBuilder response = new StringBuilder();
-
-				while ((inputLine = in.readLine()) != null) {
-					response.append(inputLine);
-				}
-				in.close();
-
-				final String responseString = response.toString();
-
-				if(handler != null) {
-					handler.post(new Runnable() {
-						@Override
-						public void run() {
-							handleResponse(statusCode, responseString, null);
-						}
-					});
-				} else {
-					handleResponse(statusCode, responseString, null);
-				}
-
-			} catch (Exception e) {
-				handleResponse(9999, null, e);
-			}
-		}
-	};
-
-	void handleResponse(int statusCode, String responseString, Exception e) {
+	void handleResponse(int statusCode, String responseString, Throwable e) {
 		closeDialogIfItNeeds();
 		switch(statusCode) {
-			case 200:
+			case RESPONSE_OK:
 				try {
 					JSONObject jsonObject = new JSONObject(responseString);
 
@@ -359,4 +335,67 @@ public class NetHttpTask {
 			return new NetHttpTask(context, url, params, synchronousMode, activityForProgress, waitString, sslSocketFactory);
 		}
 	}
+
+
+//	Thread worker = new Thread() {
+//		@Override
+//		public void run() {
+//			try {
+//				HttpURLConnection urlConnection = (HttpURLConnection) new URL(url).openConnection();
+////				if(url.startsWith("https")) {
+////					if(sslSocketFactory != null) ((HttpsURLConnection) urlConnection).setSSLSocketFactory(sslSocketFactory);
+////				}
+//				urlConnection.setReadTimeout(10000);
+//				urlConnection.setConnectTimeout(15000);
+//				urlConnection.setRequestMethod("POST");
+//				urlConnection.setDoInput(true);
+//				urlConnection.setDoOutput(true);
+//
+////				List<NameValuePair> params = new ArrayList<NameValuePair>();
+//
+//				StringBuilder result = new StringBuilder();
+//				boolean first = true;
+//
+//				for (String key : params.keySet()) {
+//					String value = params.get(key);
+//
+//					if(value == null || value.equals("")) continue;
+//					if (first)
+//						first = false;
+//					else
+//						result.append("&");
+//
+//					result.append(URLEncoder.encode(key, "UTF-8"));
+//					result.append("=");
+//					result.append(URLEncoder.encode(value, "UTF-8"));
+//				}
+//
+//				OutputStream os = urlConnection.getOutputStream();
+//				BufferedWriter writer = new BufferedWriter(
+//						new OutputStreamWriter(os, "UTF-8"));
+//				writer.write(result.toString());
+//				writer.flush();
+//				writer.close();
+//				os.close();
+//
+//				final int statusCode = urlConnection.getResponseCode();
+//
+//				BufferedReader in = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
+//				String inputLine;
+//				StringBuilder response = new StringBuilder();
+//
+//				while ((inputLine = in.readLine()) != null) {
+//					response.append(inputLine);
+//				}
+//				in.close();
+//
+//				final String responseString = response.toString();
+//
+//
+//			} catch (Exception e) {
+//				handleResponse(9999, null, e);
+//			}
+//		}
+//	};
+
 }
