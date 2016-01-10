@@ -158,7 +158,11 @@ public class NetHttpTask {
 	Response.ErrorListener errorListener = new Response.ErrorListener() {
 		@Override
 		public void onErrorResponse(VolleyError error) {
-			handleResponse(error.networkResponse.statusCode, null, error.getCause());
+			int statusCode = -1;
+			if (error.networkResponse != null) {
+				statusCode = error.networkResponse.statusCode;
+			}
+			handleResponse(statusCode, null, error.getCause());
 		}
 	};
 
