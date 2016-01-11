@@ -102,41 +102,6 @@ public class NetHttpTask {
 				errorListener.onErrorResponse(new VolleyError(e));
 			}
 		}
-
-//		httpClient.post(url, requestParams, new TextHttpResponseHandler() {
-//			@Override
-//			public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
-//				closeDialogIfItNeeds();
-//				try {
-//					callbackString.onFail(statusCode, gson.fromJson(responseString, NetHttpResult.class));
-//				} catch (Exception e) {
-//					callbackString.onFail(statusCode, null);
-//				}
-//			}
-//
-//			@Override
-//			public void onSuccess(int statusCode, Header[] headers, String responseString) {
-//				try {
-//					JSONObject jsonObject = new JSONObject(responseString);
-//
-//					if(jsonObject.getInt("code") != 0) {
-//						callbackString.onFail(statusCode, gson.fromJson(responseString, NetHttpResult.class));
-//					}
-//
-//					closeDialogIfItNeeds();
-//					String result = null;
-//					if(jsonObject.has("result")) {
-//						result = jsonObject.getString("result");
-//					}
-//
-//
-//
-//					callbackString.onSuccess(statusCode, result);
-//				} catch (JSONException e) {
-//					Log.e(TAG, e.getMessage());
-//				}
-//			}
-//		});
 	}
 
 	Response.Listener<String> stringListener = new Response.Listener<String>() {
