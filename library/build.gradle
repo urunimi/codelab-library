@@ -10,13 +10,9 @@ repositories {
 
 apply plugin: 'com.android.library'
 
-//tasks.withType(Compile) {
-//    options.encoding = 'UTF-8'
-//}
-
 android {
     compileSdkVersion 23
-    buildToolsVersion '23.0.2'
+    buildToolsVersion '23.0.3'
 
     defaultConfig {
         minSdkVersion 9
@@ -35,12 +31,10 @@ android {
     }
 
     lintOptions {
-        // Or, if you prefer, you can continue to check for errors in release builds,
-        // but continue the build even when errors are found:
         abortOnError false
     }
 }
 
 description = 'library'
 
-//apply from: 'https://raw.githubusercontent.com/urunimi/gradle-mvn-push/master/gradle-mvn-push.gradle'
+apply from: 'https://raw.githubusercontent.com/urunimi/gradle-mvn-push/master/gradle-mvn-push.gradle'
