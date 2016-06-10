@@ -6,6 +6,8 @@ import android.content.pm.ApplicationInfo;
 import android.content.res.Resources;
 import android.os.Handler;
 import android.util.Log;
+import android.view.Gravity;
+import android.widget.Toast;
 import com.hovans.android.constant.DebugConfig;
 import com.hovans.android.log.LogByCodeLab;
 
@@ -25,9 +27,9 @@ public class GlobalAppHolder {
 	/**
 	 * {@link #init(Application)}에서 이 변수에 Application Context 를 저장한다.
 	 */
-	protected Context sContext = null;
-	protected Application sApp = null;
-	protected Handler sHandler = new Handler();
+	protected Context sContext;
+	protected Application sApp;
+	protected Handler sHandler;
 
 	/**
 	 * {@link #isDebuggable()}이 리턴하는 결과값을 캐싱하기 위한 변수.
@@ -104,6 +106,26 @@ public class GlobalAppHolder {
 		return sHandler;
 	}
 
+
+	public void showToast(int resourceId) {
+		if (resourceId > Integer.MIN_VALUE) {
+			showToast(getResource().getString(resourceId));
+		}
+	}
+
+	public void showToast(final CharSequence sequence) {
+		if (sequence != null && sequence.length() > 0) {
+			getHandler().post(new Runnable() {
+				@Override
+				public void run() {
+					Toast toast = Toast.makeText(get().getContext(), sequence, Toast.LENGTH_LONG);
+					toast.setGravity(Gravity.CENTER, toast.getXOffset(), toast.getYOffset());
+					toast.show();
+				}
+			});
+		}
+	}
+
 	protected static GlobalAppHolder sInstance;
 
 	public static GlobalAppHolder get() {
@@ -116,5 +138,6 @@ public class GlobalAppHolder {
 	public void init(Application application) {
 		sApp = application;
 		sContext = application.getApplicationContext();
+		sHandler = new Handler();
 	}
 }
