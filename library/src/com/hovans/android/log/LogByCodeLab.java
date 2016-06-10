@@ -4,7 +4,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Log;
 import com.hovans.android.constant.DebugConfig;
-import com.hovans.android.global.GlobalApplication;
+import com.hovans.android.global.GlobalAppHolder;
 
 import java.io.*;
 import java.text.SimpleDateFormat;
@@ -103,7 +103,7 @@ public class LogByCodeLab {
 	}
 	
 	static void writeLogToFile(String message) {
-		File root = new File(GlobalApplication.getContext().getCacheDir(), DebugConfig.LOG_FOLDER);
+		File root = new File(GlobalAppHolder.get().getContext().getCacheDir(), DebugConfig.LOG_FOLDER);
 		if(!root.canWrite())root.mkdirs();
 		if (root.canWrite()) {
 			Date today = new Date();

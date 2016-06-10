@@ -1,23 +1,22 @@
 package com.hovans.android.network;
 
-import java.io.IOException;
-import java.net.Inet4Address;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.Hashtable;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.SystemClock;
-
 import com.hovans.android.concurrent.ThreadGuest;
 import com.hovans.android.constant.CommonConfig;
-import com.hovans.android.global.GlobalApplication;
+import com.hovans.android.global.GlobalAppHolder;
 import com.hovans.android.log.LogByCodeLab;
+
+import java.io.IOException;
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.Hashtable;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * 단말기의 네트워크 상태를 확인하기 위한 메소드를 제공한다.
@@ -364,7 +363,7 @@ public class NetState {
 	 * @return 디바이스의 WIFI 주소
 	 */
 	public static InetAddress getWifiIpAddress() {
-		Context ctxt = GlobalApplication.getContext();
+		Context ctxt = GlobalAppHolder.get().getContext();
 		WifiManager wifiManager = (WifiManager) ctxt.getSystemService(Context.WIFI_SERVICE);
 		WifiInfo wifiInfo = wifiManager.getConnectionInfo();
 		int ipAddress = wifiInfo.getIpAddress();

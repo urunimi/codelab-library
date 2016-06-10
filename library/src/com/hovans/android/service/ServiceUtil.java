@@ -1,7 +1,5 @@
 package com.hovans.android.service;
 
-import java.util.List;
-
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningServiceInfo;
 import android.app.AlarmManager;
@@ -9,9 +7,10 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-
-import com.hovans.android.global.GlobalApplication;
+import com.hovans.android.global.GlobalAppHolder;
 import com.hovans.android.log.LogByCodeLab;
+
+import java.util.List;
 
 /**
  * Service의 life cycle 관리를 지원한다.
@@ -119,7 +118,7 @@ public final class ServiceUtil {
 		// GlobalApplication.getContext()가 null인 경우가 있다! How to solve this problem?
 		// 앱이 GlobalApplication 클래스를 사용하지 않는 경우에는 getContext() 가 null임.
 		// context 를 호출자의 책임으로 넘기면 됨.
-		return isRunning(GlobalApplication.getContext(), serviceClass);
+		return isRunning(GlobalAppHolder.get().getContext(), serviceClass);
 	}
 	
 	/**

@@ -6,7 +6,7 @@ import android.os.Build;
 import android.util.TypedValue;
 import android.view.Display;
 import android.view.WindowManager;
-import com.hovans.android.global.GlobalApplication;
+import com.hovans.android.global.GlobalAppHolder;
 
 /**
  * DisplayUtils.java
@@ -32,7 +32,7 @@ public class DisplayUtils {
 	}
 
 	public static int dipToPixel(int dipValue) {
-		Resources r = GlobalApplication.getResource();
+		Resources r = GlobalAppHolder.get().getResource();
 		return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dipValue, r.getDisplayMetrics());
 	}
 }

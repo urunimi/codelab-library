@@ -1,13 +1,11 @@
 package com.hovans.android.global;
 
-import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.res.Resources;
 import android.os.Handler;
 import android.util.Log;
-
 import com.hovans.android.constant.DebugConfig;
 import com.hovans.android.log.LogByCodeLab;
 
@@ -22,46 +20,33 @@ import com.hovans.android.log.LogByCodeLab;
  * @author Arngard
  *
  */
-public class GlobalApplication extends Application {
+public class GlobalAppHolder {
 
 	/**
-	 * {@link #onCreate()}에서 이 변수에 Application Context 를 저장한다.
+	 * {@link #init(Application)}에서 이 변수에 Application Context 를 저장한다.
 	 */
-	protected static Context sContext = null;
-
-	protected static Handler sHandler = new Handler();
+	protected Context sContext = null;
+	protected Application sApp = null;
+	protected Handler sHandler = new Handler();
 
 	/**
 	 * {@link #isDebuggable()}이 리턴하는 결과값을 캐싱하기 위한 변수.
 	 * 어차피 이 결과값은 바뀌는 값이 아니기 때문에 매번 새로 얻어올 필요가 없다.
 	 * */
-	private static Boolean sIsDebuggable = null;	// tri-state(nullable).
+	private Boolean sIsDebuggable = null;    // tri-state(nullable).
 
 	/**
 	 * 외부에 출력하는 사용 방법 경고
 	 */
-	private static final void usageWarning() {
+	private void usageWarning() {
 		Log.w(DebugConfig.LOG_TAG, "com.codelab.library.global.GlobalApplication: Wrong usage.");
-	} 
-
-	/**
-	 * 인자로 준 액티비티가 종속되어 있는 Application 객체를 얻어온다.
-	 * 이 때 얻어오는 객체는 어플리케이션의 모든 실행 요소가
-	 * 제거(Task kill 등)되지 않는 한 계속 살아있는 객체이다.<br>
-	 * @param activity 생성이 완료되지 않은 액티비티를 사용하지 않도록 주의한다.
-	 * 그런 경우에는 내부 요소가 모두 구성되었으리라고 보장할 수 없다.
-	 * onCreate() 등이 호출된 이후의 객체를 사용하도록 한다.
-	 * @return activity.getApplication()
-	 */
-	public static GlobalApplication of(Activity activity) {
-		return (GlobalApplication)(activity.getApplication());
 	}
 
 	/**
-	 * {@link #onCreate()}에서 저장해둔 어플리케이션 Context를 얻는다.
+	 * {@link #init(Application)}에서 저장해둔 어플리케이션 Context를 얻는다.
 	 * @return Application Context
 	 */
-	public static Context getContext() {
+	public Context getContext() {
 		return sContext;
 	}
 
@@ -69,7 +54,7 @@ public class GlobalApplication extends Application {
 	 * 어플리케이션 리소스를 얻는다.
 	 * @return 리소스.
 	 */
-	public static Resources getResource() {
+	public Resources getResource() {
 		if (sContext == null) {
 			usageWarning();
 			return null;
@@ -83,7 +68,7 @@ public class GlobalApplication extends Application {
 	 * 결과값을 호출자가 따로 캐시할 필요도 없다.
 	 * @return masifest를 통해 인식한 android:debuggable 값.
 	 */
-	public static boolean isDebuggable() {
+	public boolean isDebuggable() {
 		// 캐시된 값이 있으면 그냥 돌려준다.
 		if (sIsDebuggable != null) {
 			return sIsDebuggable;
@@ -103,31 +88,33 @@ public class GlobalApplication extends Application {
 		return false;
 	}
 
-	public static void runOnUiThread(Runnable runnable) {
+	public void runOnUiThread(Runnable runnable) {
 		sHandler.post(runnable);
 	}
 
-	public static void runOnUiThread(Runnable runnable, long millis) {
+	public void runOnUiThread(Runnable runnable, long millis) {
 		sHandler.postDelayed(runnable, millis);
 	}
 
-	public static void removeCallbacks(Runnable runnable) {
+	public void removeCallbacks(Runnable runnable) {
 		sHandler.removeCallbacks(runnable);
 	}
 
-	public static Handler getHandler() {
+	public Handler getHandler() {
 		return sHandler;
 	}
 
-	/**
-	 * 이 메소드를 상속할 경우 super 호출을 빠뜨리지 말 것.
-	 * @see android.app.Application#onCreate()
-	 */
-	@Override
-	public void onCreate() {
-		super.onCreate();
-		sContext = null;
-		sContext = getApplicationContext();
+	protected static GlobalAppHolder sInstance;
+
+	public static GlobalAppHolder get() {
+		if (sInstance == null) {
+			sInstance = new GlobalAppHolder();
+		}
+		return sInstance;
 	}
 
+	public void init(Application application) {
+		sApp = application;
+		sContext = application.getApplicationContext();
+	}
 }

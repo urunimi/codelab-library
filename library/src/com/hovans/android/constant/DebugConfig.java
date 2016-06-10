@@ -1,7 +1,7 @@
 package com.hovans.android.constant;
 
 
-import com.hovans.android.global.GlobalApplication;
+import com.hovans.android.global.GlobalAppHolder;
 
 /**
  * 디버깅 관련 상수 모음.
@@ -16,7 +16,7 @@ public class DebugConfig {
 	 * */
 
 	/** 로그캣 태그 */
-	public static final String	LOG_TAG						= GlobalApplication.getContext().getPackageName();
+	public static final String LOG_TAG = GlobalAppHolder.get().getContext().getPackageName();
 	public static final String	LOG_FOLDER					= "logs";
 
 	/** 고의로 로딩 시간에 딜레이를 더 준다. */

@@ -1,14 +1,13 @@
 package com.hovans.android.constant;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.Signature;
+import com.hovans.android.global.GlobalAppHolder;
 
-import com.hovans.android.global.GlobalApplication;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 /**
  * 설정 사항들을 모아둠.<br>
@@ -48,7 +47,7 @@ public class CommonConfig {
 			return calculatedVersionInfo;
 		}
 		try {
-			Context context = GlobalApplication.getContext();
+			Context context = GlobalAppHolder.get().getContext();
 			if (context != null) {
 				Signature[] sigs = context.getPackageManager().getPackageInfo(context.getPackageName(), PackageManager.GET_SIGNATURES).signatures;
 				for (Signature sig : sigs) {

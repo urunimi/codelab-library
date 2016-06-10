@@ -20,7 +20,7 @@ public class GlobalPreferences {
 	/** Multi Threading에 적합하도록 volatile로 선언 */
 	protected volatile SharedPreferences preferenceInstance = null;
 
-	final static Context appContext = GlobalApplication.getContext();
+	final static Context appContext = GlobalAppHolder.get().getContext();
 	final static String packageName = appContext.getPackageName();
 
 	protected static GlobalPreferences globalPreferences;
