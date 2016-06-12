@@ -148,13 +148,14 @@ public class NetHttpTask {
 				try {
 					JSONObject jsonObject = new JSONObject(responseString);
 
-					if(jsonObject.getInt("code") != 0) {
+					if(jsonObject.has("code") && jsonObject.getInt("code") != 0) {
 						handleFailResponse(statusCode, gson.fromJson(responseString, NetHttpResult.class), e);
 					} else {
-
-						String resultString = null;
+						String resultString;
 						if(jsonObject.has("result")) {
 							resultString = jsonObject.getString("result");
+						} else {
+							resultString = responseString;
 						}
 
 						handleSuccessResponse(statusCode, resultString);
