@@ -233,6 +233,7 @@ public class NetHttpTask {
 //		this.sslSocketFactory = sslSocketFactory;
 		if (queue == null) {
 			queue = Volley.newRequestQueue(context);
+			queue.start();
 			if (sslSocketFactory != null) HttpsURLConnection.setDefaultSSLSocketFactory(sslSocketFactory);
 		}
 
