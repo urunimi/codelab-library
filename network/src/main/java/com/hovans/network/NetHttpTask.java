@@ -35,7 +35,7 @@ public class NetHttpTask {
 
 	static final String TAG = NetHttpTask.class.getSimpleName();
 
-	static final Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'ZZZ").excludeFieldsWithoutExposeAnnotation().create();
+	static final Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'ZZZ").create();
 
 	static final int REQUEST_TIMEOUT = 10, RESPONSE_OK = 200;
 
@@ -92,7 +92,12 @@ public class NetHttpTask {
 			handler = new Handler();
 		} else {
 			RequestFuture<String> future = RequestFuture.newFuture();
-			StringRequest request = new StringRequest(StringRequest.Method.POST, url, future, errorListener);
+			StringRequest request = new StringRequest(StringRequest.Method.POST, url, future, errorListener) {
+				@Override
+				protected Map<String, String> getParams() throws AuthFailureError {
+					return params;
+				}
+			};
 			queue.add(request);
 			try {
 				String result = future.get(REQUEST_TIMEOUT, TimeUnit.SECONDS);
