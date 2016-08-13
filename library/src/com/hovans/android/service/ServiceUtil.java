@@ -34,13 +34,16 @@ public final class ServiceUtil {
 	 */
 	public static void startSchedule(Service service, String action, long delay) {
 		stopSchedulePrivate(service, action);
-		
-		long now = System.currentTimeMillis();
-		
 		LogByCodeLab.d("ServiceUtil: Scheduling Action \"" + action + "\" with delay " + (delay/1000) + "sec");
+
 		Intent i = new Intent();
 		i.setClass(service, service.getClass());
 		i.setAction(action);
+		startSchedule(service, i, delay);
+	}
+
+	public static void startSchedule(Service service, Intent i, long delay) {
+		long now = System.currentTimeMillis();
 		i.putExtra(SCHEDULE_TIME, android.os.SystemClock.elapsedRealtime());
 		PendingIntent pi = PendingIntent.getService(service, 0, i, 0);
 		AlarmManager alarmMgr = (AlarmManager)service.getSystemService(Context.ALARM_SERVICE);
@@ -99,7 +102,11 @@ public final class ServiceUtil {
 		Intent i = new Intent();
 		i.setClass(service, service.getClass());
 		i.setAction(action);
-		PendingIntent pi = PendingIntent.getService(service, 0, i, 0);
+		stopSchedulePrivate(service, i);
+	}
+
+	static void stopSchedulePrivate(Service service, Intent intent) {
+		PendingIntent pi = PendingIntent.getService(service, 0, intent, 0);
 		AlarmManager alarmMgr = (AlarmManager)service.getSystemService(Context.ALARM_SERVICE);
 		alarmMgr.cancel(pi);
 	}
