@@ -271,8 +271,8 @@ public class NetHttpTask {
 			return this;
 		}
 
-		public Builder addParam(String key, String value) {
-			params.put(key, value);
+		public Builder addParam(String key, Object value) {
+			params.put(key, String.valueOf(value));
 			return this;
 		}
 
