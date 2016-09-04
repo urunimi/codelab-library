@@ -292,16 +292,6 @@ public class NetHttpTask {
 			return this;
 		}
 
-//		public Builder setPath(String path) {
-//			if(url != null) throw new UnsupportedOperationException("Only path or url should be set");
-//
-//			if(path.startsWith("/") == false) {
-//				path = "/" + path;
-//			}
-//			this.url = URL_BASE + path;
-//			return this;
-//		}
-
 		public Builder setSyncMode(boolean synchronousMode) {
 			this.synchronousMode = synchronousMode;
 			return this;
@@ -311,67 +301,4 @@ public class NetHttpTask {
 			return new NetHttpTask(context, url, params, synchronousMode, activityForProgress, waitString, sslSocketFactory);
 		}
 	}
-
-
-//	Thread worker = new Thread() {
-//		@Override
-//		public void run() {
-//			try {
-//				HttpURLConnection urlConnection = (HttpURLConnection) new URL(url).openConnection();
-////				if(url.startsWith("https")) {
-////					if(sslSocketFactory != null) ((HttpsURLConnection) urlConnection).setSSLSocketFactory(sslSocketFactory);
-////				}
-//				urlConnection.setReadTimeout(10000);
-//				urlConnection.setConnectTimeout(15000);
-//				urlConnection.setRequestMethod("POST");
-//				urlConnection.setDoInput(true);
-//				urlConnection.setDoOutput(true);
-//
-////				List<NameValuePair> params = new ArrayList<NameValuePair>();
-//
-//				StringBuilder result = new StringBuilder();
-//				boolean first = true;
-//
-//				for (String key : params.keySet()) {
-//					String value = params.get(key);
-//
-//					if(value == null || value.equals("")) continue;
-//					if (first)
-//						first = false;
-//					else
-//						result.append("&");
-//
-//					result.append(URLEncoder.encode(key, "UTF-8"));
-//					result.append("=");
-//					result.append(URLEncoder.encode(value, "UTF-8"));
-//				}
-//
-//				OutputStream os = urlConnection.getOutputStream();
-//				BufferedWriter writer = new BufferedWriter(
-//						new OutputStreamWriter(os, "UTF-8"));
-//				writer.write(result.toString());
-//				writer.flush();
-//				writer.close();
-//				os.close();
-//
-//				final int statusCode = urlConnection.getResponseCode();
-//
-//				BufferedReader in = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
-//				String inputLine;
-//				StringBuilder response = new StringBuilder();
-//
-//				while ((inputLine = in.readLine()) != null) {
-//					response.append(inputLine);
-//				}
-//				in.close();
-//
-//				final String responseString = response.toString();
-//
-//
-//			} catch (Exception e) {
-//				handleResponse(9999, null, e);
-//			}
-//		}
-//	};
-
 }
