@@ -1,15 +1,14 @@
 package com.hovans.android.util;
 
+import android.os.Process;
+import android.util.Log;
+import com.hovans.android.log.LogByCodeLab;
+
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
-
-import android.os.Process;
-import android.util.Log;
-
-import com.hovans.android.log.LogByCodeLab;
 
 /**
  * Simple stop watch, allowing for timing of a number of tasks,
@@ -351,7 +350,11 @@ public class StopWatch {
 					sw.stop();
 				}
 
-				Log.v(TAG, sw.prettyPrint());
+				if (sw.getTotalTimeMillis() > 50) {
+					Log.d(TAG, sw.prettyPrint());
+				} else {
+					Log.v(TAG, sw.prettyPrint());
+				}
 
 				long taskStartTime = sw.getStartTime() - globalStartTime;
 				long taskTotalTime = sw.getTotalTimeMillis();
