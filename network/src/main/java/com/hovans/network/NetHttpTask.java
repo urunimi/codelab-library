@@ -34,7 +34,7 @@ public class NetHttpTask {
 
 	static final Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'ZZZ").create();
 
-	static final int REQUEST_TIMEOUT = 10, RESPONSE_OK = 200, TIMEOUT = 5000;
+	static final int REQUEST_TIMEOUT = 10, RESPONSE_OK = 200, TIMEOUT = 10000;
 
 	@Expose
 	final String url;
