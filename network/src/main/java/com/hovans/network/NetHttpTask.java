@@ -6,10 +6,7 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
-import com.android.volley.AuthFailureError;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
+import com.android.volley.*;
 import com.android.volley.toolbox.RequestFuture;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
@@ -37,7 +34,7 @@ public class NetHttpTask {
 
 	static final Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'ZZZ").create();
 
-	static final int REQUEST_TIMEOUT = 10, RESPONSE_OK = 200;
+	static final int REQUEST_TIMEOUT = 10, RESPONSE_OK = 200, TIMEOUT = 5000;
 
 	@Expose
 	final String url;
@@ -87,7 +84,10 @@ public class NetHttpTask {
 					return params;
 				}
 			};
-
+			stringRequest.setRetryPolicy(new DefaultRetryPolicy(
+					TIMEOUT,
+					DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+					DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
 			queue.add(stringRequest);
 			handler = new Handler();
 		} else {
@@ -98,6 +98,10 @@ public class NetHttpTask {
 					return params;
 				}
 			};
+			request.setRetryPolicy(new DefaultRetryPolicy(
+					TIMEOUT,
+					DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+					DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
 			queue.add(request);
 			try {
 				String result = future.get(REQUEST_TIMEOUT, TimeUnit.SECONDS);
