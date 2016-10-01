@@ -1,15 +1,10 @@
 package com.hovans.android.log;
 
-import android.os.Handler;
-import android.os.HandlerThread;
 import android.util.Log;
 import com.hovans.android.constant.DebugConfig;
-import com.hovans.android.global.GlobalAppHolder;
 
-import java.io.*;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 
 /**
  * 정형화된 포맷으로 로그캣 출력을 하기 위한 래핑 메소드들.
@@ -54,7 +49,7 @@ public class LogByCodeLab {
 		if (d()) {
 			String text = formatLog(message);
 			Log.i(tag, text);
-			writeLogToFile(text);
+			FileLogger.getInstance().write(text);
 		}
 	}
 	public static void i(String message) {
@@ -66,7 +61,7 @@ public class LogByCodeLab {
 		if (d()) {
 			String text = formatLog(message);
 			Log.w(tag, text);
-			writeLogToFile(text);
+			FileLogger.getInstance().write(text);
 		}
 	}
 
@@ -83,7 +78,7 @@ public class LogByCodeLab {
 		if (d()) {
 			String text = formatLog(message);
 			Log.e(DebugConfig.LOG_TAG, text);
-			writeLogToFile(text);
+			FileLogger.getInstance().write(text);
 		}
 	}
 
@@ -101,54 +96,4 @@ public class LogByCodeLab {
 	    e.printStackTrace(pw);
 	    return sw.toString();
 	}
-	
-	static void writeLogToFile(String message) {
-		File root = new File(GlobalAppHolder.get().getContext().getCacheDir(), DebugConfig.LOG_FOLDER);
-		if(!root.canWrite())root.mkdirs();
-		if (root.canWrite()) {
-			Date today = new Date();
-			Calendar calendar = Calendar.getInstance();
-			calendar.setTime(today);
-			calendar.add(Calendar.DATE, -2);
-
-			final File oldFile = new File(root, dateFormat.format(calendar.getTime())+ ".txt");
-			if(oldFile.exists()) {
-				oldFile.delete();
-			}
-
-			calendar.setTime(today);
-
-			final File logFile = new File(root, dateFormat.format(calendar.getTime())+ ".txt");
-
-			final String messageWithTime = dateTimeFormat.format(today) + message;
-
-			if(handlerThread == null) {
-				handlerThread = new HandlerThread(DebugConfig.LOG_TAG);
-				handlerThread.start();
-				handler = new Handler(handlerThread.getLooper());
-			}
-
-			if(handler != null) {
-				handler.post(new Runnable() {
-					@Override
-					public void run() {
-						try {
-							FileOutputStream fos = new FileOutputStream(logFile, true);
-							fos.write((messageWithTime + "\n").getBytes());
-							fos.close();
-
-						} catch (IOException ioe) {
-							Log.e(DebugConfig.LOG_TAG, "Could not write filen", ioe);
-						}
-					}
-				});
-			}
-		}
-	}
-
-	static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-	static final SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yy-MM-dd HH:mm:ss.SSS");
-
-	static HandlerThread handlerThread;
-	static Handler handler;
 }
