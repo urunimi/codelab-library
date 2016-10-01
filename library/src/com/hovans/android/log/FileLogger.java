@@ -72,12 +72,12 @@ public class FileLogger {
 	}
 
 	File getLogFolder() {
-		return new File(GlobalAppHolder.get().getContext().getCacheDir(), DebugConfig.LOG_FOLDER);
+		return new File(GlobalAppHolder.get().getContext().getExternalCacheDir(), DebugConfig.LOG_FOLDER);
 	}
 
 	public void send(Context context) {
 		try {
-			File outZipPath = new File(GlobalAppHolder.get().getContext().getCacheDir(), "Logs.zip");
+			File outZipPath = new File(GlobalAppHolder.get().getContext().getExternalCacheDir(), "Logs.zip");
 			FileOutputStream fos = new FileOutputStream(outZipPath);
 			ZipOutputStream zos = new ZipOutputStream(fos);
 			File srcFile = getLogFolder();
