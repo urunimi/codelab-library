@@ -1,14 +1,41 @@
 buildscript {
     repositories {
-        mavenCentral()
+        jcenter()
     }
 }
 
 repositories {
-    mavenCentral()
+    jcenter()
 }
 
 apply plugin: 'com.android.library'
+
+ext {
+    def id = 'network'
+    def desc = 'Android network library.'
+
+    bintrayName = id
+    libraryName = desc
+    artifact = id
+    libraryDescription = desc
+
+    bintrayRepo = 'maven'
+    publishedGroupId = 'com.hovans.network'
+    bintrayUserOrg = null
+
+    siteUrl = 'https://github.com/urunimi/CodelabNetwork'
+    gitUrl = 'https://github.com/urunimi/CodelabNetwork'
+
+    libraryVersion = '0.7.0'
+
+    developerId = 'urunimi'
+    developerName = 'Pyungwoo Yoo'
+    developerEmail = 'hovan@hovans.com'
+
+    licenseName = 'The Apache Software License, Version 2.0'
+    licenseUrl = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+    allLicenses = ["Apache-2.0"]
+}
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
@@ -32,4 +59,5 @@ android {
     }
 }
 
-//apply from: 'https://raw.githubusercontent.com/urunimi/gradle-mvn-push/master/gradle-mvn-push.gradle'
+apply from: 'https://raw.githubusercontent.com/urunimi/JCenter/master/installv1.gradle'
+apply from: 'https://raw.githubusercontent.com/urunimi/JCenter/master/bintrayv1.gradle'
