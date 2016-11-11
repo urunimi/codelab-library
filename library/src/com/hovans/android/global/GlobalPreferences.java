@@ -114,7 +114,7 @@ public class GlobalPreferences {
 		try {
 			if(encryptString != null) {
 				if(LogByCodeLab.d()) LogByCodeLab.d("seed=" + seed + ", key=" + key + ", encryptString=" + encryptString);
-				encryptString = SimpleCrypto.decrypt(seed, encryptString);
+				encryptString = SimpleCrypto.decrypt(seed, encryptString, "DES");
 			}
 		} catch(Exception e) {
 			if(LogByCodeLab.d()) LogByCodeLab.e(e, "key=" + key + ", encryptString=" + encryptString);
@@ -134,7 +134,7 @@ public class GlobalPreferences {
 	public synchronized static boolean setStringEncrypt(String seed, String key, String value) {
 		try {
 			if(value != null) {
-				value = SimpleCrypto.encrypt(seed, value);
+				value = SimpleCrypto.encrypt(seed, value, "DES");
 			}
 			SharedPreferences.Editor editor = getInstance().edit();
 			if(value == null) {
