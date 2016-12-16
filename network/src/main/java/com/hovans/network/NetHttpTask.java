@@ -15,8 +15,6 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
 import org.json.JSONObject;
 
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLSocketFactory;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -37,18 +35,18 @@ public class NetHttpTask {
 	static final int REQUEST_TIMEOUT = 10, RESPONSE_OK = 200, TIMEOUT = 10000;
 
 	@Expose
-	final String url;
-	final String waitString;
+	String url;
+	String waitString;
 	@Expose
-	final HashMap<String, String> params;
+	HashMap<String, String> params;
 
-	static RequestQueue queue;
+	protected static RequestQueue queue;
 
-	//	final Context context;
-	final boolean synchronousMode;
-	final Activity activityForProgress;
+	boolean synchronousMode;
+	Activity activityForProgress;
 	//	final SSLSocketFactory sslSocketFactory;
 	ProgressDialog progressDialog;
+	NetResponseHandler callbackNetResponse;
 	StringResponseHandler callbackString;
 	ResponseHandler callbackObject;
 	Handler handler;
@@ -58,13 +56,20 @@ public class NetHttpTask {
 	public <T> void post(Class<T> classOfT, final ResponseHandler<T> callback) {
 		type = classOfT;
 		this.callbackObject = callback;
+		post();
+	}
 
-		post(null);
+	public void post(final NetResponseHandler callbackNetResponse) {
+		this.callbackNetResponse = callbackNetResponse;
+		post();
 	}
 
 	public void post(final StringResponseHandler callback) {
 		this.callbackString = callback;
+		post();
+	}
 
+	private void post() {
 		if(activityForProgress != null) {
 			activityForProgress.runOnUiThread(new Runnable() {
 				@Override
@@ -81,7 +86,7 @@ public class NetHttpTask {
 			StringRequest stringRequest = new StringRequest(StringRequest.Method.POST, url, stringListener, errorListener) {
 				@Override
 				protected Map<String, String> getParams() throws AuthFailureError {
-					return params;
+					return NetHttpTask.this.getParams();
 				}
 			};
 			stringRequest.setRetryPolicy(new DefaultRetryPolicy(
@@ -95,7 +100,7 @@ public class NetHttpTask {
 			StringRequest request = new StringRequest(StringRequest.Method.POST, url, future, errorListener) {
 				@Override
 				protected Map<String, String> getParams() throws AuthFailureError {
-					return params;
+					return NetHttpTask.this.getParams();
 				}
 			};
 			request.setRetryPolicy(new DefaultRetryPolicy(
@@ -111,6 +116,14 @@ public class NetHttpTask {
 				errorListener.onErrorResponse(new VolleyError(e));
 			}
 		}
+	}
+
+	protected String getSuccessKey() {
+		return "code";
+	}
+
+	protected Map<String, String> getParams() {
+		return params;
 	}
 
 	Response.Listener<String> stringListener = new Response.Listener<String>() {
@@ -146,8 +159,7 @@ public class NetHttpTask {
 
 	public static NetHttpTask restoreBackup(String gsonData) {
 		NetHttpTask backup = gson.fromJson(gsonData, NetHttpTask.class);
-		NetHttpTask task = new NetHttpTask(backup);
-		return task;
+		return new NetHttpTask(backup);
 	}
 
 	void handleResponse(int statusCode, String responseString, Throwable e) {
@@ -157,8 +169,10 @@ public class NetHttpTask {
 				try {
 					JSONObject jsonObject = new JSONObject(responseString);
 
-					if(jsonObject.has("code") && jsonObject.getInt("code") != 0) {
-						handleFailResponse(statusCode, gson.fromJson(responseString, NetHttpResult.class), e);
+					final String successKey = getSuccessKey();
+
+					if (jsonObject.has(successKey) && jsonObject.getInt(successKey) != 0) {
+						handleFailResponse(statusCode, gson.fromJson(responseString, NetHttpResponse.class), e);
 					} else {
 						String resultString;
 						if(jsonObject.has("result")) {
@@ -167,7 +181,7 @@ public class NetHttpTask {
 							resultString = responseString;
 						}
 
-						handleSuccessResponse(statusCode, resultString);
+						handleSuccessResponse(statusCode, responseString, resultString);
 					}
 				} catch (Exception ex) {
 					handleFailResponse(statusCode, null, ex);
@@ -176,7 +190,7 @@ public class NetHttpTask {
 				break;
 			default:
 				try {
-					handleFailResponse(statusCode, gson.fromJson(responseString, NetHttpResult.class), e);
+					handleFailResponse(statusCode, gson.fromJson(responseString, NetHttpResponse.class), e);
 				} catch (Exception ex) {
 					handleFailResponse(statusCode, null, ex);
 				}
@@ -184,20 +198,24 @@ public class NetHttpTask {
 		}
 	}
 
-	void handleSuccessResponse(int statusCode, String resultString) {
+	protected void handleSuccessResponse(int statusCode, String responseString, String resultString) {
 		if(callbackString != null) {
 			callbackString.onSuccess(statusCode, resultString);
 		} else if(callbackObject != null) {
 			Object resultObject = gson.fromJson(resultString, type);
 			callbackObject.onSuccess(statusCode, resultObject, resultString);
+		} else if (callbackNetResponse != null) {
+			callbackNetResponse.onResponse(statusCode, gson.fromJson(responseString, NetHttpResponse.class));
 		}
 	}
 
-	void handleFailResponse(int statusCode, NetHttpResult result, Throwable e) {
+	protected void handleFailResponse(int statusCode, NetHttpResponse httpResponse, Throwable e) {
 		if(callbackString != null) {
-			callbackString.onFail(statusCode, result, e);
+			callbackString.onFail(statusCode, httpResponse, e);
 		} else if(callbackObject != null) {
-			callbackObject.onFail(statusCode, result, e);
+			callbackObject.onFail(statusCode, httpResponse, e);
+		} else if (callbackNetResponse != null) {
+			callbackNetResponse.onResponse(statusCode, httpResponse);
 		}
 	}
 
@@ -216,14 +234,20 @@ public class NetHttpTask {
 		}
 	}
 
+	public interface NetResponseHandler {
+		void onResponse(int statusCode, NetHttpResponse response);
+	}
+
 	public interface StringResponseHandler {
 		void onSuccess(int statusCode, String result);
-		void onFail(int statusCode, NetHttpResult result, Throwable e);
+
+		void onFail(int statusCode, NetHttpResponse response, Throwable e);
 	}
 
 	public interface ResponseHandler<T> {
 		void onSuccess(int statusCode, T result, String resultString);
-		void onFail(int statusCode, NetHttpResult result, Throwable e);
+
+		void onFail(int statusCode, NetHttpResponse response, Throwable e);
 	}
 
 	public NetHttpTask(NetHttpTask backup) {
@@ -235,74 +259,57 @@ public class NetHttpTask {
 		activityForProgress = null;
 	}
 
-	private NetHttpTask(Context context, String url, HashMap<String, String> params, boolean syncronous, Activity activityForProgress, String waitString, SSLSocketFactory sslSocketFactory) {
-		this.waitString = waitString;
-		this.url = url;
-		this.params = params;
-//		this.sslSocketFactory = sslSocketFactory;
-		if (queue == null) {
-			queue = Volley.newRequestQueue(context);
-			queue.start();
-			if (sslSocketFactory != null) HttpsURLConnection.setDefaultSSLSocketFactory(sslSocketFactory);
-		}
-
-		if(Looper.myLooper() == null) synchronousMode = true;
-		else {
-			this.synchronousMode = syncronous;
-		}
-		this.activityForProgress = activityForProgress;
+	protected NetHttpTask() {
 	}
 
 	public static class Builder {
-		String url;
-		HashMap<String, String> params = new HashMap<>();
-		boolean synchronousMode;
-
 		Context context;
-
-		SSLSocketFactory sslSocketFactory;
-		Activity activityForProgress;
-		String waitString;
+		protected NetHttpTask httpTask;
 
 		public Builder(Context context) {
 			this.context = context;
+			httpTask = new NetHttpTask();
+
+			if (queue == null) {
+				queue = Volley.newRequestQueue(context);
+				queue.start();
+			}
 		}
 
 //		final String URL_BASE = "http://autoguard.hovans.com";
 
 		public Builder setParams(HashMap<String, String> params) {
-			this.params = params;
+			httpTask.params = params;
 			return this;
 		}
 
 		public Builder addParam(String key, Object value) {
-			params.put(key, String.valueOf(value));
+			httpTask.params.put(key, String.valueOf(value));
 			return this;
 		}
 
 		public Builder setUrl(String url) {
-			this.url = url;
+			httpTask.url = url;
 			return this;
 		}
 
 		public Builder showProgress(Activity activity, String waitString) {
-			activityForProgress = activity;
-			this.waitString = waitString;
-			return this;
-		}
-
-		public Builder setSSLSocketFactory(SSLSocketFactory sslSocketFactory) {
-			this.sslSocketFactory = sslSocketFactory;
+			httpTask.activityForProgress = activity;
+			httpTask.waitString = waitString;
 			return this;
 		}
 
 		public Builder setSyncMode(boolean synchronousMode) {
-			this.synchronousMode = synchronousMode;
+			if (Looper.myLooper() == null) {
+				httpTask.synchronousMode = true;
+			} else {
+				httpTask.synchronousMode = synchronousMode;
+			}
 			return this;
 		}
 
 		public NetHttpTask build() {
-			return new NetHttpTask(context, url, params, synchronousMode, activityForProgress, waitString, sslSocketFactory);
+			return httpTask;
 		}
 	}
 }

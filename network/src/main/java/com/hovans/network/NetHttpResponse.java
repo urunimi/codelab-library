@@ -4,10 +4,10 @@ import com.google.gson.annotations.Expose;
 
 /**
  * NetResult.java
- *
+ * <p>
  * Created by Hovan on 1/23/15.
  */
-public class NetHttpResult {
+public class NetHttpResponse {
 	@Expose
 	int code;
 	@Expose
