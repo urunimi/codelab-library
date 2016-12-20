@@ -20,7 +20,7 @@ ext {
     libraryDescription = desc
 
     bintrayRepo = 'maven'
-    publishedGroupId = 'com.hovans.network'
+    publishedGroupId = 'com.hovans.android'
     bintrayUserOrg = null
 
     siteUrl = 'https://github.com/urunimi/CodelabNetwork'
