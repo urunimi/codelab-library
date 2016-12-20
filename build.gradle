@@ -1,11 +1,13 @@
 buildscript {
     repositories {
-        mavenCentral()
+        jcenter()
     }
 
-    // dependencies {
-    //     classpath('com.android.tools.build:gradle:2.1.0')
-    // }
+    dependencies {
+        classpath('com.android.tools.build:gradle:2.2.0')
+        classpath("com.jfrog.bintray.gradle:gradle-bintray-plugin:1.+")
+        classpath("com.github.dcendents:android-maven-gradle-plugin:1.4.1")
+    }
 }
 
 def isReleaseBuild() {
@@ -17,7 +19,7 @@ allprojects {
 //   group = GROUP
 
     repositories {
-        mavenCentral()
+        jcenter()
     }
 
     ext.androidMinSDKVersion = 8

@@ -26,7 +26,7 @@ ext {
     siteUrl = 'https://github.com/urunimi/CodelabNetwork'
     gitUrl = 'https://github.com/urunimi/CodelabNetwork'
 
-    libraryVersion = '0.7.0'
+    libraryVersion = '0.8.0'
 
     developerId = 'urunimi'
     developerName = 'Pyungwoo Yoo'
@@ -38,12 +38,9 @@ ext {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
 //    compile('com.hovans.android:library:+')
     compile("com.google.code.gson:gson:2.6.2")
     compile("com.mcxiaoke.volley:library:1.0.19")
-//    compile('com.loopj.android:android-async-http:1.4.+')
-//    compile "cz.msebera.android:httpclient:4.3.6"
 }
 
 android {
