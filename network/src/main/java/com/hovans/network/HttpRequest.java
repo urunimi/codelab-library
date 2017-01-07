@@ -25,7 +25,7 @@ import java.util.concurrent.TimeoutException;
 /**
  * HttpRequest.java
  *
- * @author Hovan Yoo
+ * @author Ben Yoo
  */
 public class HttpRequest {
 

@@ -6,7 +6,7 @@ import java.security.NoSuchAlgorithmException;
 /**
  * StringUtils.java
  *
- * @author Hovan Yoo
+ * @author Ben Yoo
  */
 public class StringUtils {
 	public static boolean isEmpty(CharSequence string) {

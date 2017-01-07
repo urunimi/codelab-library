@@ -1,18 +1,17 @@
 package com.hovans.android.widget;
 
-import java.lang.reflect.Field;
-
 import android.app.Activity;
 import android.view.View;
-
 import com.hovans.android.constant.DebugConfig;
 import com.hovans.android.log.LogByCodeLab;
+
+import java.lang.reflect.Field;
 
 /**
  * {@link View#findViewById(int)} 함수를 자동으로 구현하기 위한 static method 모음. <br/>
  * XML의 ID와 멤버변수의 이름이 같으면 알아서 mapping을 해준다.
- * 
- * @author Hovan Yoo
+ *
+ * @author Ben Yoo
  */
 public class AutoViews {
 
