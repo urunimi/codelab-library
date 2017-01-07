@@ -14,7 +14,7 @@ import java.util.List;
 
 /**
  * Service의 life cycle 관리를 지원한다.
- * @author Hovan, Arngard
+ * @author Ben Yoo, Arngard
  *
  */
 public final class ServiceUtil {

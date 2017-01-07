@@ -18,8 +18,8 @@ import java.util.Formatter;
  * ...
  * String cleartext = SimpleCrypto.decrypt(masterpassword, crypto)
  * </pre>
- * 
- * @author Hovan
+ *
+ * @author Ben Yoo
  */
 public class SimpleCrypto {
 	static final String TRANSFORMATION = "AES";

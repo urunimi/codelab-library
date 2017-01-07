@@ -23,8 +23,8 @@ import java.util.Locale;
 /**
  * Collection of utility functions used in this package. <br/>
  * Default Gallery의 코드를 참조하여 작성
- * 
- * @author Hovan
+ *
+ * @author Ben Yoo
  * 
  */
 public class GraphicsUtil {

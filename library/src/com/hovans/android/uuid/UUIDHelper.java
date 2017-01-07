@@ -12,7 +12,7 @@ import java.util.UUID;
 /**
  * Time based UUID를 위한 Helper Class
  * 기본 UUID는 시간 기반이 아니다.
- * @author Hovan
+ * @author Ben Yoo
  */
 public class UUIDHelper {
 	
