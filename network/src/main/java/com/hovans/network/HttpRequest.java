@@ -16,6 +16,8 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
 import org.json.JSONObject;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -59,20 +61,68 @@ public class HttpRequest {
 	public <T> void post(Class<T> classOfT, final ResponseHandler<T> callback) {
 		type = classOfT;
 		this.callbackObject = callback;
-		post();
+		request(StringRequest.Method.POST);
 	}
 
 	public void post(final NetResponseHandler callbackNetResponse) {
 		this.callbackNetResponse = callbackNetResponse;
-		post();
+		request(StringRequest.Method.POST);
 	}
 
 	public void post(final StringResponseHandler callback) {
 		this.callbackString = callback;
-		post();
+		request(StringRequest.Method.POST);
 	}
 
-	private void post() {
+	public <T> void get(Class<T> classOfT, final ResponseHandler<T> callback) {
+		type = classOfT;
+		this.callbackObject = callback;
+		request(StringRequest.Method.GET);
+	}
+
+	public void get(final NetResponseHandler callbackNetResponse) {
+		this.callbackNetResponse = callbackNetResponse;
+		request(StringRequest.Method.GET);
+	}
+
+	public void get(final StringResponseHandler callback) {
+		this.callbackString = callback;
+		request(StringRequest.Method.GET);
+	}
+
+	public <T> void put(Class<T> classOfT, final ResponseHandler<T> callback) {
+		type = classOfT;
+		this.callbackObject = callback;
+		request(StringRequest.Method.PUT);
+	}
+
+	public void put(final NetResponseHandler callbackNetResponse) {
+		this.callbackNetResponse = callbackNetResponse;
+		request(StringRequest.Method.PUT);
+	}
+
+	public void put(final StringResponseHandler callback) {
+		this.callbackString = callback;
+		request(StringRequest.Method.PUT);
+	}
+
+	public <T> void delete(Class<T> classOfT, final ResponseHandler<T> callback) {
+		type = classOfT;
+		this.callbackObject = callback;
+		request(StringRequest.Method.DELETE);
+	}
+
+	public void delete(final NetResponseHandler callbackNetResponse) {
+		this.callbackNetResponse = callbackNetResponse;
+		request(StringRequest.Method.DELETE);
+	}
+
+	public void delete(final StringResponseHandler callback) {
+		this.callbackString = callback;
+		request(StringRequest.Method.DELETE);
+	}
+
+	private void request(int method) {
 		if(activityForProgress != null) {
 			activityForProgress.runOnUiThread(new Runnable() {
 				@Override
@@ -92,40 +142,43 @@ public class HttpRequest {
 			}
 		}
 
-		if(synchronousMode == false && Looper.myLooper() != null) {
-			StringRequest stringRequest = new StringRequest(StringRequest.Method.POST, url, stringListener, errorListener) {
-				@Override
-				protected Map<String, String> getParams() throws AuthFailureError {
-					return HttpRequest.this.getParams();
-				}
-			};
-			stringRequest.setRetryPolicy(new DefaultRetryPolicy(
-					TIMEOUT,
-					DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
-					DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-			queue.add(stringRequest);
-			handler = new Handler();
-		} else {
-			RequestFuture<String> future = RequestFuture.newFuture();
-			StringRequest request = new StringRequest(StringRequest.Method.POST, url, future, errorListener) {
-				@Override
-				protected Map<String, String> getParams() throws AuthFailureError {
-					return HttpRequest.this.getParams();
-				}
-			};
-			request.setRetryPolicy(new DefaultRetryPolicy(
-					TIMEOUT,
-					DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
-					DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-			queue.add(request);
-			try {
+		try {
+			if (synchronousMode == false && Looper.myLooper() != null) {
+				queue.add(getRequest(method, url, stringListener, errorListener));
+				handler = new Handler();
+			} else {
+				RequestFuture<String> future = RequestFuture.newFuture();
+				queue.add(getRequest(method, url, future, errorListener));
 				String result = future.get(REQUEST_TIMEOUT, TimeUnit.SECONDS);
 				stringListener.onResponse(result);
-			} catch (InterruptedException | ExecutionException | TimeoutException e) {
-				Log.w(TAG, e);
-				errorListener.onErrorResponse(new VolleyError(e));
 			}
+		} catch (InterruptedException | ExecutionException | TimeoutException | UnsupportedEncodingException e) {
+			Log.w(TAG, e);
+			errorListener.onErrorResponse(new VolleyError(e));
 		}
+	}
+
+	StringRequest getRequest(int method, String url, Response.Listener<String> listener, Response.ErrorListener errorListener) throws UnsupportedEncodingException {
+		StringRequest stringRequest;
+		switch (method) {
+			case StringRequest.Method.GET:
+				stringRequest = new StringRequest(method, url + "?" + getQuery(HttpRequest.this.getParams()), listener, errorListener);
+				break;
+			default:
+				stringRequest = new StringRequest(method, url, listener, errorListener) {
+					@Override
+					protected Map<String, String> getParams() throws AuthFailureError {
+						return HttpRequest.this.getParams();
+					}
+				};
+				break;
+		}
+
+		stringRequest.setRetryPolicy(new DefaultRetryPolicy(
+				TIMEOUT,
+				DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+				DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+		return stringRequest;
 	}
 
 	SharedPreferences getPreferences() {
@@ -245,6 +298,24 @@ public class HttpRequest {
 		}
 	}
 
+	public static String getQuery(Map<String, String> parameters) throws UnsupportedEncodingException {
+		StringBuilder result = new StringBuilder();
+		boolean first = true;
+
+		for (String key : parameters.keySet()) {
+			if (first)
+				first = false;
+			else
+				result.append("&");
+
+			result.append(URLEncoder.encode(key, "UTF-8"));
+			result.append("=");
+			result.append(URLEncoder.encode(parameters.get(key), "UTF-8"));
+		}
+
+		return result.toString();
+	}
+
 	public interface NetResponseHandler {
 		void onResponse(int statusCode, DefaultHttpResponse response);
 	}
@@ -293,6 +364,11 @@ public class HttpRequest {
 
 		public Builder setUrl(String url) {
 			httpTask.url = url;
+			return this;
+		}
+
+		public Builder addPath(String path) {
+			httpTask.url += path;
 			return this;
 		}
 
