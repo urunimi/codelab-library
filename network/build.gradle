@@ -26,7 +26,7 @@ ext {
     siteUrl = 'https://github.com/urunimi/CodelabNetwork'
     gitUrl = 'https://github.com/urunimi/CodelabNetwork'
 
-    libraryVersion = '0.8.0'
+    libraryVersion = '0.9.0'
 
     developerId = 'urunimi'
     developerName = 'Pyungwoo Yoo'
