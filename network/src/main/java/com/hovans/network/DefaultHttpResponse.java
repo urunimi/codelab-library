@@ -7,7 +7,7 @@ import com.google.gson.annotations.Expose;
 /**
  * DefaultHttpResponse.java
  * <p>
- * Created by Hovan on 1/23/15.
+ * Created by Ben on 1/23/15.
  */
 public class DefaultHttpResponse implements Parcelable {
 
@@ -18,9 +18,12 @@ public class DefaultHttpResponse implements Parcelable {
 	@Expose
 	int code;
 	@Expose
-	String message, result;
+	String message;
 
-	public String getResult() {
+	@Expose
+	Object result;
+
+	public Object getResult() {
 		return result;
 	}
 
@@ -46,7 +49,7 @@ public class DefaultHttpResponse implements Parcelable {
 	public void writeToParcel(Parcel dest, int flags) {
 		dest.writeInt(code);
 		dest.writeString(message);
-		dest.writeString(result);
+		dest.writeString(result.toString());
 	}
 
 	public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {

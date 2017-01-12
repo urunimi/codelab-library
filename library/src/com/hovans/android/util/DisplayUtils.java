@@ -11,7 +11,7 @@ import com.hovans.android.global.GlobalAppHolder;
 /**
  * DisplayUtils.java
  * <p/>
- * Created by Hovan on 9/11/14.
+ * Created by Ben on 9/11/14.
  */
 public class DisplayUtils {
 

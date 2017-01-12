@@ -9,7 +9,7 @@ import android.widget.GridView;
 /**
  * WrapGridView.java
  *
- * Created by Hovan on 6/26/14.
+ * Created by Ben on 6/26/14.
  */
 public class WrapGridView extends GridView {
 

@@ -11,7 +11,7 @@ import com.hovans.android.util.SimpleCrypto;
 /**
  * GlobalPreferences.java
  * <p/>
- * Created by Hovan on 8/29/14.
+ * Created by Ben on 8/29/14.
  */
 public class GlobalPreferences {
 

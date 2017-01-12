@@ -230,7 +230,9 @@ public class HttpRequest {
 					final String successKey = getSuccessKey();
 
 					if (jsonObject.has(successKey) && jsonObject.getInt(successKey) != 0) {
-						handleFailResponse(statusCode, gson.fromJson(responseString, DefaultHttpResponse.class), e);
+						DefaultHttpResponse defaultHttpResponse = gson.fromJson(responseString, DefaultHttpResponse.class);
+						defaultHttpResponse.code = jsonObject.getInt(successKey);
+						handleFailResponse(statusCode, defaultHttpResponse, e);
 					} else {
 						String resultString;
 						if(jsonObject.has("result")) {
