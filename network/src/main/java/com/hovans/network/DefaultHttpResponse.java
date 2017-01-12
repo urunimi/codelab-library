@@ -1,15 +1,14 @@
 package com.hovans.network;
 
-import android.os.Parcel;
-import android.os.Parcelable;
 import com.google.gson.annotations.Expose;
+import org.json.JSONObject;
 
 /**
  * DefaultHttpResponse.java
  * <p>
  * Created by Ben on 1/23/15.
  */
-public class DefaultHttpResponse implements Parcelable {
+public class DefaultHttpResponse {
 
 	public static final int RES_SUCCESS = 0;
 	public static final int RES_FAIL = 2;
@@ -21,9 +20,9 @@ public class DefaultHttpResponse implements Parcelable {
 	String message;
 
 	@Expose
-	Object result;
+	String result;
 
-	public Object getResult() {
+	public String getResult() {
 		return result;
 	}
 
@@ -40,29 +39,29 @@ public class DefaultHttpResponse implements Parcelable {
 		return "code: " + code + ", message: " + message + ", result: " + result;
 	}
 
-	@Override
-	public int describeContents() {
-		return 0;
-	}
-
-	@Override
-	public void writeToParcel(Parcel dest, int flags) {
-		dest.writeInt(code);
-		dest.writeString(message);
-		dest.writeString(result.toString());
-	}
-
-	public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
-		public DefaultHttpResponse createFromParcel(Parcel source) {
-			DefaultHttpResponse response = new DefaultHttpResponse();
-			response.code = source.readInt();
-			response.message = source.readString();
-			response.result = source.readString();
-			return response;
-		}
-
-		public DefaultHttpResponse[] newArray(int size) {
-			return new DefaultHttpResponse[size];
-		}
-	};
+//	@Override
+//	public int describeContents() {
+//		return 0;
+//	}
+//
+//	@Override
+//	public void writeToParcel(Parcel dest, int flags) {
+//		dest.writeInt(code);
+//		dest.writeString(message);
+//		dest.writeString(result.toString());
+//	}
+//
+//	public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
+//		public DefaultHttpResponse createFromParcel(Parcel source) {
+//			DefaultHttpResponse response = new DefaultHttpResponse();
+//			response.code = source.readInt();
+//			response.message = source.readString();
+//			response.result = source.readString();
+//			return response;
+//		}
+//
+//		public DefaultHttpResponse[] newArray(int size) {
+//			return new DefaultHttpResponse[size];
+//		}
+//	};
 }

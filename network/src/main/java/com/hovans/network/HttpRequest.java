@@ -14,6 +14,7 @@ import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
@@ -220,32 +221,34 @@ public class HttpRequest {
 		}
 	};
 
+	DefaultHttpResponse getDefaultResponseFrom(String responseString) throws JSONException {
+		JSONObject jsonObject = new JSONObject(responseString);
+		final String successKey = getSuccessKey();
+		DefaultHttpResponse defaultHttpResponse = new DefaultHttpResponse();
+		defaultHttpResponse.code = DefaultHttpResponse.RES_TIMEOUT;
+		if (jsonObject.has(successKey)) {
+			defaultHttpResponse.code = jsonObject.getInt(successKey);
+		}
+		if (jsonObject.has("message") && "null".equals(jsonObject.getString("message")) == false) defaultHttpResponse.message = jsonObject.getString("message");
+		if (jsonObject.has("result") && "null".equals(jsonObject.getString("result")) == false) defaultHttpResponse.result = jsonObject.getString("result");
+
+		return defaultHttpResponse;
+	}
+
 	void handleResponse(int statusCode, String responseString, Throwable e) {
 		closeDialogIfItNeeds();
 		switch(statusCode) {
 			case RESPONSE_OK:
 				try {
-					JSONObject jsonObject = new JSONObject(responseString);
-
-					final String successKey = getSuccessKey();
-
-					if (jsonObject.has(successKey) && jsonObject.getInt(successKey) != 0) {
-						DefaultHttpResponse defaultHttpResponse = gson.fromJson(responseString, DefaultHttpResponse.class);
-						defaultHttpResponse.code = jsonObject.getInt(successKey);
-						handleFailResponse(statusCode, defaultHttpResponse, e);
+					DefaultHttpResponse response = getDefaultResponseFrom(responseString);
+					if (response.code != 0) {
+						handleFailResponse(statusCode, response, e);
 					} else {
-						String resultString;
-						if(jsonObject.has("result")) {
-							resultString = jsonObject.getString("result");
-						} else {
-							resultString = responseString;
-						}
-
 						if (alreadySent && useCache) {
 							getPreferences().edit().putString(url, responseString).apply();
 						}
 						if (cachedResult == null || cachedResult.equals(responseString) == false) {
-							handleSuccessResponse(statusCode, responseString, resultString);
+							handleSuccessResponse(statusCode, response);
 						}
 					}
 				} catch (Exception ex) {
@@ -264,14 +267,14 @@ public class HttpRequest {
 		alreadySent = true;
 	}
 
-	protected void handleSuccessResponse(int statusCode, String responseString, String resultString) {
+	protected void handleSuccessResponse(int statusCode, DefaultHttpResponse response) {
 		if(callbackString != null) {
-			callbackString.onSuccess(statusCode, resultString);
+			callbackString.onSuccess(statusCode, response.result);
 		} else if(callbackObject != null) {
-			Object resultObject = gson.fromJson(resultString, type);
-			callbackObject.onSuccess(statusCode, resultObject, resultString);
+			Object resultObject = gson.fromJson(response.result, type);
+			callbackObject.onSuccess(statusCode, resultObject, response.result);
 		} else if (callbackNetResponse != null) {
-			callbackNetResponse.onResponse(statusCode, gson.fromJson(responseString, DefaultHttpResponse.class));
+			callbackNetResponse.onResponse(statusCode, response);
 		}
 	}
 
