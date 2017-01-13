@@ -32,32 +32,32 @@ import java.util.concurrent.TimeoutException;
  */
 public class HttpRequest {
 
-	static final String TAG = HttpRequest.class.getSimpleName();
+	private static final String TAG = HttpRequest.class.getSimpleName();
 
 	static final Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'ZZZ").create();
 
-	static final int REQUEST_TIMEOUT = 10, RESPONSE_OK = 200, TIMEOUT = 10000;
+	protected static final int REQUEST_TIMEOUT = 10, RESPONSE_OK = 200, TIMEOUT = 10000;
 
 	@Expose
-	String url;
-	String waitString;
+	protected String url;
+	protected String waitString;
 	@Expose
-	HashMap<String, String> params = new HashMap<>();
+	protected HashMap<String, String> params = new HashMap<>();
 
 	protected static RequestQueue queue;
 
-	boolean synchronousMode, useCache, alreadySent;
-	String cachedResult;
+	protected boolean synchronousMode, useCache, alreadySent;
+	protected String cachedResult;
 
-	Activity activityForProgress;
+	protected Activity activityForProgress;
 	//	final SSLSocketFactory sslSocketFactory;
-	ProgressDialog progressDialog;
-	NetResponseHandler callbackNetResponse;
-	StringResponseHandler callbackString;
-	ResponseHandler callbackObject;
-	Handler handler;
+	protected ProgressDialog progressDialog;
+	protected NetResponseHandler callbackNetResponse;
+	protected StringResponseHandler callbackString;
+	protected ResponseHandler callbackObject;
+	protected Handler handler;
 
-	Class type;
+	protected Class type;
 
 	public <T> void post(Class<T> classOfT, final ResponseHandler<T> callback) {
 		type = classOfT;
@@ -235,7 +235,7 @@ public class HttpRequest {
 		return defaultHttpResponse;
 	}
 
-	void handleResponse(int statusCode, String responseString, Throwable e) {
+	protected void handleResponse(int statusCode, String responseString, Throwable e) {
 		closeDialogIfItNeeds();
 		switch(statusCode) {
 			case RESPONSE_OK:
@@ -355,8 +355,6 @@ public class HttpRequest {
 			}
 		}
 
-//		final String URL_BASE = "http://autoguard.hovans.com";
-
 		public Builder setParams(HashMap<String, String> params) {
 			httpTask.params = params;
 			return this;
@@ -389,11 +387,7 @@ public class HttpRequest {
 		}
 
 		public Builder setSyncMode(boolean synchronousMode) {
-			if (Looper.myLooper() == null) {
-				httpTask.synchronousMode = true;
-			} else {
-				httpTask.synchronousMode = synchronousMode;
-			}
+			httpTask.synchronousMode = Looper.myLooper() == null || synchronousMode;
 			return this;
 		}
 
