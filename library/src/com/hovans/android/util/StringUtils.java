@@ -10,7 +10,7 @@ import java.security.NoSuchAlgorithmException;
  */
 public class StringUtils {
 	public static boolean isEmpty(CharSequence string) {
-		return string == null || string.equals("");
+		return string == null || string.equals("") || string.equals("null");
 	}
 
 	public static byte[] makeMD5(String param) {
