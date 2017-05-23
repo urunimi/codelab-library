@@ -23,7 +23,7 @@ This means that you will always use the latest version available.
 
 ## License
  
- Copyright 2012 Hovan Yoo
+ Copyright 2012 Pyungwoo Yoo
  
  This Project licenses this file to you under the Apache License,
  version 2.0 (the "License"); you may not use this file except in compliance
