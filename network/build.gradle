@@ -20,17 +20,17 @@ ext {
     libraryDescription = desc
 
     bintrayRepo = 'maven'
-    publishedGroupId = 'com.hovans.android'
+    publishedGroupId = 'com.buzzvil.android'
     bintrayUserOrg = null
 
-    siteUrl = 'https://github.com/urunimi/CodelabNetwork'
-    gitUrl = 'https://github.com/urunimi/CodelabNetwork'
+    siteUrl = 'https://github.com/Buzzvil/CodelabNetwork'
+    gitUrl = 'https://github.com/Buzzvil/CodelabNetwork'
 
     libraryVersion = '0.9.4'
 
     developerId = 'urunimi'
     developerName = 'Pyungwoo Yoo'
-    developerEmail = 'hovan@hovans.com'
+    developerEmail = 'ben.yoo@buzzvil.com'
 
     licenseName = 'The Apache Software License, Version 2.0'
     licenseUrl = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
@@ -56,5 +56,5 @@ android {
     }
 }
 
-apply from: 'https://raw.githubusercontent.com/urunimi/JCenter/master/installv1.gradle'
-apply from: 'https://raw.githubusercontent.com/urunimi/JCenter/master/bintrayv1.gradle'
+apply from: 'https://raw.githubusercontent.com/Buzzvil/j-center/master/installv1.gradle'
+apply from: 'https://raw.githubusercontent.com/Buzzvil/j-center/master/bintrayv1.gradle'
