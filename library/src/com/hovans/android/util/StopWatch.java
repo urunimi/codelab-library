@@ -329,7 +329,7 @@ public class StopWatch {
 				}
 
 				if (!sw.isRunning()) {
-					Log.i(TAG, "StopWatch - key : [" + key + "] started");
+					Log.v(TAG, "StopWatch - key : [" + key + "] started");
 					sw.start(key);
 				}
 			}
