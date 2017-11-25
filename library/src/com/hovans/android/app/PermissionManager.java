@@ -1,18 +1,17 @@
 package com.hovans.android.app;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
-
 import com.hovans.android.log.LogByCodeLab;
+
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * WakeLock과 같은 Permission을 관리한다.
- * @author hovan, arngard
+ * @author Ben, arngard
  *
  */
 public class PermissionManager {
@@ -94,7 +93,7 @@ public class PermissionManager {
 
 	/**
 	 * {@link android.os.PowerManager.WakeLock}를 감싸고 있는 Class
-	 * @author hovan, arngard
+	 * @author Ben, arngard
 	 *
 	 */
 	public static class WakeLockWrapper {
