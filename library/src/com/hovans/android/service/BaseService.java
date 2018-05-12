@@ -1,8 +1,5 @@
 package com.hovans.android.service;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-
 import android.app.Notification;
 import android.app.Service;
 import android.content.Intent;
@@ -11,15 +8,17 @@ import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
-
 import com.hovans.android.log.LogByCodeLab;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 /**
  * 안드로이드 서비스 기반 구조에 대한 기본적인 부가 처리를 위한 래핑.<br>
  * <br>
  * 현재 이 클래스의 구현은 버전 호환성 문제와 작업 스레드 분리를 다룬다.
  * 
- * @author Arngard, Hovan
+ * @author Arngard, Ben
  */
 public abstract class BaseService extends Service {
 

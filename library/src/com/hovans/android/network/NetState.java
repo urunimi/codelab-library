@@ -20,7 +20,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * 단말기의 네트워크 상태를 확인하기 위한 메소드를 제공한다.
- * @author Arngard, Hovan
+ * @author Arngard, Ben
  *
  */
 public class NetState {

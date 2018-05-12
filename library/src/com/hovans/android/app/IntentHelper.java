@@ -1,19 +1,18 @@
 package com.hovans.android.app;
 
-import java.util.List;
-
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
-
 import com.hovans.android.log.LogByCodeLab;
+
+import java.util.List;
 
 /**
  * 인텐트 송수신에서 도움이 될 만한 메소드들
  * 
- * @author Arngard, Hovan
+ * @author Arngard, Ben
  *
  */
 public class IntentHelper {

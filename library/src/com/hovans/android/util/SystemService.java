@@ -15,7 +15,7 @@ import java.lang.ref.WeakReference;
 
 /**
  * Created with IntelliJ IDEA.
- * User: Hovan
+ * User: Ben
  * Date: 13. 6. 22.
  * Time: PM 9:44
  * To change this template use File | Settings | File Templates.
