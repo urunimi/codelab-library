@@ -39,7 +39,7 @@ ext {
 
 dependencies {
 //    compile('com.hovans.android:library:+')
-    api("com.google.code.gson:gson:2.6.2")
+    api("com.google.code.gson:gson:2.8.2")
     api("com.mcxiaoke.volley:library:1.0.19")
 }
 
@@ -48,7 +48,7 @@ android {
     buildToolsVersion '27.0.3'
 
     defaultConfig {
-        minSdkVersion 9
+        minSdkVersion 14
     }
 
     lintOptions {
