@@ -26,7 +26,7 @@ ext {
     siteUrl = 'https://github.com/urunimi/CodelabLibrary'
     gitUrl = 'https://github.com/urunimi/CodelabLibrary'
 
-    libraryVersion = '0.9.4'
+    libraryVersion = '0.9.5'
 
     developerId = 'urunimi'
     developerName = 'Pyungwoo Yoo'
@@ -62,5 +62,5 @@ android {
     }
 }
 
-apply from: 'https://raw.githubusercontent.com/urunimi/JCenter/master/installv1.gradle'
-apply from: 'https://raw.githubusercontent.com/urunimi/JCenter/master/bintrayv1.gradle'
+apply from: 'https://raw.githubusercontent.com/urunimi/j-center/master/installv1.gradle'
+apply from: 'https://raw.githubusercontent.com/urunimi/j-center/master/bintrayv1.gradle'
