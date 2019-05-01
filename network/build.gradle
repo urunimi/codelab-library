@@ -26,7 +26,7 @@ ext {
     siteUrl = 'https://github.com/urunimi/CodelabNetwork'
     gitUrl = 'https://github.com/urunimi/CodelabNetwork'
 
-    libraryVersion = '0.9.5'
+    libraryVersion = '0.9.8'
 
     developerId = 'urunimi'
     developerName = 'Pyungwoo Yoo'
@@ -39,7 +39,7 @@ ext {
 
 dependencies {
     api("com.google.code.gson:gson:2.8.5")
-    api("com.mcxiaoke.volley:library:1.0.19")
+    api("com.android.volley:volley:1.1.1")
 }
 
 android {
@@ -47,7 +47,8 @@ android {
     buildToolsVersion BUILD_TOOLS_VERSION
 
     defaultConfig {
-        minSdkVersion 14
+        minSdkVersion MIN_SDK_VERSION
+        targetSdkVersion TARGET_SDK_VERSION
     }
 
     lintOptions {

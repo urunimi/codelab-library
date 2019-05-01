@@ -7,7 +7,11 @@ import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
-import com.android.volley.*;
+import com.android.volley.AuthFailureError;
+import com.android.volley.DefaultRetryPolicy;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
 import com.android.volley.toolbox.RequestFuture;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
@@ -50,7 +54,6 @@ public class HttpRequest {
 	protected String cachedResult;
 
 	protected Activity activityForProgress;
-	//	final SSLSocketFactory sslSocketFactory;
 	protected ProgressDialog progressDialog;
 	protected NetResponseHandler callbackNetResponse;
 	protected StringResponseHandler callbackString;
@@ -128,10 +131,12 @@ public class HttpRequest {
 			activityForProgress.runOnUiThread(new Runnable() {
 				@Override
 				public void run() {
-					progressDialog = new ProgressDialog(activityForProgress);
-					progressDialog.setMessage(waitString);
-					progressDialog.setCancelable(false);
-					progressDialog.show();
+					if (activityForProgress.isFinishing() == false) {
+						progressDialog = new ProgressDialog(activityForProgress);
+						progressDialog.setMessage(waitString);
+						progressDialog.setCancelable(false);
+						progressDialog.show();
+					}
 				}
 			});
 		}

@@ -5,7 +5,7 @@ buildscript {
     }
 
     dependencies {
-        classpath('com.android.tools.build:gradle:3.1.1')
+        classpath('com.android.tools.build:gradle:3.2.1')
         classpath("com.jfrog.bintray.gradle:gradle-bintray-plugin:1.+")
         classpath("com.github.dcendents:android-maven-gradle-plugin:1.4.1")
     }
@@ -30,7 +30,7 @@ allprojects {
 
 ext {
     COMPILE_SDK_VERSION = 28
-    BUILD_TOOLS_VERSION = "28.0.2"
+    BUILD_TOOLS_VERSION = "28.0.3"
     TARGET_SDK_VERSION = 26
-    MIN_SDK_VERSION = 21
+    MIN_SDK_VERSION = 14
 }
